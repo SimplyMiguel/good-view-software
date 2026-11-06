@@ -1,0 +1,238 @@
+---
+import "../../styles/demo-apartment.css";
+import { items, totalPrice, formatPrice } from "../../demos/apartment/items";
+import { createViewer, type Viewer } from "../../demos/apartment/scene";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Studio 01 — 42 m² · Shoppable room concept</title>
+  </head>
+  <body class="font-apt-sans bg-apt-paper text-apt-ink">
+    <div id="stage" class="relative h-dvh w-full overflow-hidden">
+      <canvas id="scene" class="absolute inset-0 block h-full w-full"></canvas>
+
+      <header class="pointer-events-none absolute left-0 right-0 top-0 z-10 flex flex-col gap-2.5 p-5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div>
+          <p class="font-apt-mono text-[10px] uppercase tracking-[0.14em] text-apt-muted">Shoppable room concept</p>
+          <h1 class="mt-1.5 whitespace-nowrap text-[24px] leading-none tracking-tight sm:text-[30px]">Studio 01 — 42 m²</h1>
+        </div>
+        <div class="flex shrink-0 items-center gap-2">
+          <span class="rounded-full bg-white/70 px-3 py-1.5 text-[13px] tabular-nums backdrop-blur">
+            Shoppable total {formatPrice(totalPrice)}
+          </span>
+          <button
+            type="button"
+            data-reset
+            class="pointer-events-auto rounded-full border border-apt-line bg-white/70 px-3 py-1.5 font-apt-mono text-[10px] uppercase tracking-[0.12em] backdrop-blur transition-colors hover:bg-white"
+          >
+            Reset view
+          </button>
+        </div>
+      </header>
+
+      <nav
+        aria-label="Items in this room"
+        class="pointer-events-auto absolute bottom-16 left-0 right-0 z-10 overflow-x-auto whitespace-nowrap px-5 pb-2 sm:bottom-auto sm:left-5 sm:top-1/2 sm:right-auto sm:max-h-[70dvh] sm:-translate-y-1/2 sm:overflow-x-visible sm:overflow-y-auto sm:px-0 sm:pb-0"
+      >
+        <ul class="flex gap-1.5 sm:flex-col sm:gap-0.5">
+          {
+            items.map((item) => (
+              <li class="inline-block sm:block">
+                <button
+                  type="button"
+                  data-item={item.id}
+                  class="flex w-full items-baseline justify-between gap-3 rounded-md border border-transparent px-2.5 py-1.5 text-left text-[12px] transition-colors hover:border-apt-line hover:bg-white/70 focus-visible:border-apt-accent focus-visible:outline-none"
+                >
+                  <span class="whitespace-nowrap">{item.name}</span>
+                  <span class="font-apt-mono text-[11px] tabular-nums text-apt-muted">{formatPrice(item.price)}</span>
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div
+        data-card
+        hidden
+        class="pointer-events-auto absolute z-20 w-[236px] rounded-xl border border-apt-line bg-white/90 p-3.5 shadow-[0_8px_30px_rgba(34,32,28,0.14)] backdrop-blur-md"
+      >
+        <p data-card-category class="font-apt-mono text-[11px] uppercase tracking-[0.12em] text-apt-muted"></p>
+        <h2 data-card-name class="mt-1 text-[17px] leading-tight tracking-tight"></h2>
+        <p data-card-price class="mt-1 text-[15px] tabular-nums"></p>
+        <div class="mt-2.5 flex items-center gap-2">
+          <span data-card-swatch class="h-3.5 w-3.5 shrink-0 rounded-full border border-apt-line"></span>
+          <span data-card-color class="text-[12px] text-apt-muted"></span>
+        </div>
+        <p data-card-note class="mt-2 text-[11px] leading-snug text-apt-muted">
+          Demo content — prices and colours are illustrative.
+        </p>
+        <a
+          href="#"
+          data-demo-link
+          aria-disabled="true"
+          class="mt-3 block rounded-md bg-apt-ink px-3 py-2 text-center text-[11px] uppercase tracking-[0.12em] text-apt-paper"
+        >
+          View on Amazon ↗
+        </a>
+        <p class="mt-1.5 text-[10px] text-apt-muted">Example link — no real product.</p>
+      </div>
+
+      <p
+        class="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap font-apt-mono text-[10px] uppercase tracking-[0.12em] text-apt-muted"
+      >
+        Drag to orbit · Scroll to zoom · Hover an item
+      </p>
+
+      <p data-fallback hidden class="absolute inset-0 grid place-items-center text-center text-[13px] text-apt-muted">
+        This preview needs WebGL, which your browser has turned off.
+      </p>
+    </div>
+
+    <script>
+      import { items, formatPrice } from "../../demos/apartment/items";
+      import { createViewer, type Viewer } from "../../demos/apartment/scene";
+
+      const stage = document.getElementById("stage") as HTMLElement;
+      const card = stage.querySelector<HTMLElement>("[data-card]")!;
+      const cardCategory = stage.querySelector<HTMLElement>("[data-card-category]")!;
+      const cardName = stage.querySelector<HTMLElement>("[data-card-name]")!;
+      const cardPrice = stage.querySelector<HTMLElement>("[data-card-price]")!;
+      const cardSwatch = stage.querySelector<HTMLElement>("[data-card-swatch]")!;
+      const cardColor = stage.querySelector<HTMLElement>("[data-card-color]")!;
+      const fallback = stage.querySelector<HTMLElement>("[data-fallback]")!;
+      const railButtons = Array.from(stage.querySelectorAll<HTMLButtonElement>("[data-item]"));
+      const resetButton = stage.querySelector<HTMLButtonElement>("[data-reset]");
+      const demoLink = stage.querySelector<HTMLAnchorElement>("[data-demo-link]");
+
+      const byId = new Map(items.map((item) => [item.id, item]));
+      let pinned: string | null = null;
+      let lastPoint: { x: number; y: number } = { x: 0, y: 0 };
+
+      const place = (x: number, y: number) => {
+        const stageRect = stage.getBoundingClientRect();
+        const w = card.offsetWidth;
+        const h = card.offsetHeight;
+        if (stageRect.width < 640) {
+          card.style.left = "16px";
+          card.style.top = `${Math.max(8, stageRect.height - h - 120)}px`;
+          return;
+        }
+        const left = Math.min(Math.max(x + 16, 8), Math.max(8, stageRect.width - w - 8));
+        const top = Math.min(Math.max(y + 16, 8), Math.max(8, stageRect.height - h - 8));
+        card.style.left = `${left}px`;
+        card.style.top = `${top}px`;
+      };
+
+      const fillCard = (id: string) => {
+        const item = byId.get(id);
+        if (!item || !card) return;
+        cardCategory!.textContent = item.category;
+        cardName!.textContent = item.name;
+        cardPrice!.textContent = formatPrice(item.price);
+        cardSwatch!.style.background = item.colorHex;
+        cardColor!.textContent = item.color;
+        card.hidden = false;
+      };
+
+      const boot = (viewer: Viewer) => {
+        viewer.setHoverListener(({ id, x, y }) => {
+          viewer.setHighlight(id);
+          if (pinned) return;
+          if (!id || !byId.has(id)) {
+            card.hidden = true;
+            return;
+          }
+          lastPoint = { x, y };
+          fillCard(id);
+          place(x, y);
+        });
+
+        viewer.setSelectListener(({ id, x, y }) => {
+          pinned = id && byId.has(id) ? id : null;
+          if (!pinned) {
+            card.hidden = true;
+            card.removeAttribute("data-pinned");
+            return;
+          }
+          lastPoint = { x, y };
+          fillCard(pinned);
+          place(x, y);
+          card.setAttribute("data-pinned", "");
+        });
+
+        for (const button of railButtons) {
+          const id = button.dataset.item!;
+          const show = () => {
+            viewer.setHighlight(id);
+            if (pinned) return;
+            const rect = button.getBoundingClientRect();
+            const stageRect = stage.getBoundingClientRect();
+            lastPoint = { x: rect.right - stageRect.left, y: rect.top - stageRect.top };
+            fillCard(id);
+            place(lastPoint.x, lastPoint.y);
+          };
+          button.addEventListener("pointerenter", show);
+          button.addEventListener("focus", show);
+          button.addEventListener("click", () => {
+            pinned = id;
+            viewer.setHighlight(id);
+            fillCard(id);
+            place(lastPoint.x, lastPoint.y);
+            card.setAttribute("data-pinned", "");
+          });
+        }
+
+        resetButton?.addEventListener("click", () => {
+          viewer.resetView();
+          pinned = null;
+          card.hidden = true;
+          card.removeAttribute("data-pinned");
+        });
+
+        demoLink?.addEventListener("click", (event) => event.preventDefault());
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key !== "Escape") return;
+          if (pinned) {
+            pinned = null;
+            card.hidden = true;
+            card.removeAttribute("data-pinned");
+            viewer.setHighlight(null);
+            event.preventDefault();
+            return;
+          }
+          if (window.parent !== window) {
+            window.parent.postMessage({ type: "preview-close" }, window.location.origin);
+          }
+        });
+
+        window.addEventListener("resize", () => {
+          if (card.hidden || !pinned) return;
+          place(lastPoint.x, lastPoint.y);
+        });
+
+        (window as any).__aptViewer = {
+          get ready() {
+            return true;
+          },
+          itemCount: viewer.itemCount,
+          screenPoint: (id: string) => viewer.screenPoint(id),
+        };
+      };
+
+      let viewer: Viewer | null = null;
+      try {
+        viewer = createViewer(stage);
+      } catch {
+        fallback.hidden = false;
+      }
+      if (viewer) boot(viewer);
+    </script>
+  </body>
+</html>

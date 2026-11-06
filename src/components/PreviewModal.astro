@@ -1,0 +1,83 @@
+---
+interface Props {
+  id: string;
+  src: string;
+  label: string;
+  chrome: string;
+  title: string;
+  frameBg: string;
+}
+
+const { id, src, label, chrome, title, frameBg } = Astro.props;
+---
+
+<dialog data-preview={id} data-preview-src={src} aria-label={label} class="site-preview">
+  <div class="flex h-11 items-center justify-between bg-ink-950 px-4 text-paper">
+    <span class="flex gap-1.5" aria-hidden="true">
+      <span class="h-2 w-2 rounded-full bg-paper/30"></span>
+      <span class="h-2 w-2 rounded-full bg-paper/30"></span>
+      <span class="h-2 w-2 rounded-full bg-paper/30"></span>
+    </span>
+    <span class="truncate px-3 font-mono text-[11px]">{chrome}</span>
+    <button type="button" data-preview-close class="shrink-0 whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.1em]">Close ✕</button>
+  </div>
+  <iframe data-preview-frame title={title} style={`background:${frameBg}`} class="block h-[calc(100%-44px)] w-full border-0"></iframe>
+</dialog>
+
+<style>
+  .site-preview {
+    width: min(1280px, calc(100vw - 48px));
+    height: calc(100dvh - 48px);
+    max-width: none;
+    max-height: none;
+    margin: auto;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    background: #111;
+  }
+  .site-preview::backdrop {
+    background: rgb(17 17 17 / 0.72);
+    backdrop-filter: blur(2px);
+  }
+  @media (max-width: 639px) {
+    .site-preview {
+      width: 100vw;
+      height: 100dvh;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLDialogElement>("dialog[data-preview]").forEach((dialog) => {
+    const id = dialog.dataset.preview;
+    const frame = dialog.querySelector<HTMLIFrameElement>("[data-preview-frame]");
+    const closeButton = dialog.querySelector<HTMLButtonElement>("[data-preview-close]");
+    const src = dialog.dataset.previewSrc;
+    if (!id || !frame || !closeButton || !src) return;
+
+    const open = () => {
+      if (!frame.getAttribute("src")) frame.src = src;
+      dialog.showModal();
+      document.documentElement.style.overflow = "hidden";
+    };
+
+    document.querySelectorAll<HTMLElement>(`[data-open-preview="${id}"]`).forEach((el) => {
+      el.addEventListener("click", open);
+    });
+    closeButton.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener("close", () => {
+      document.documentElement.style.overflow = "";
+    });
+    window.addEventListener("message", (event) => {
+      if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
+      // "site-preview-close" is the legacy Etxea demo contract; both are accepted.
+      if (event.data?.type === "preview-close" || event.data?.type === "site-preview-close") {
+        dialog.close();
+      }
+    });
+  });
+</script>

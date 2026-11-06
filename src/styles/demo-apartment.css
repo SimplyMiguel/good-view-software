@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --font-apt-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-apt-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-apt-paper: #f5f3ee;
+  --color-apt-ink: #22201c;
+  --color-apt-muted: #7b756a;
+  --color-apt-line: #ddd8cd;
+  --color-apt-accent: #b4553a;
+}
+
+html,
+body {
+  background: var(--color-apt-paper);
+  color: var(--color-apt-ink);
+  height: 100%;
+  overflow: hidden;
+}
