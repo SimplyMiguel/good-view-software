@@ -9,23 +9,25 @@ const projects = [
     kind: "Restaurant site",
     detail: "A restaurant site concept — click the preview to open it.",
   },
-  {
-    id: "viewer",
-    number: "002",
-    title: "3D viewer",
-    kind: "3D room configurator",
-    detail: "Walk a shoppable studio apartment — hover any object for price and colour.",
-  },
+  // 3D viewer parked: hidden from the wheel for now while the concept is
+  // repositioned. Uncomment to bring it back (and restore its PreviewModal).
+  // {
+  //   id: "viewer",
+  //   number: "002",
+  //   title: "3D viewer",
+  //   kind: "3D room configurator",
+  //   detail: "Walk a shoppable studio apartment — hover any object for price and colour.",
+  // },
   {
     id: "mobile",
-    number: "003",
+    number: "002",
     title: "Mobile app",
     kind: "iOS · Android",
     detail: "Booking, ordering, or field tools in your customers' pockets.",
   },
   {
     id: "portal",
-    number: "004",
+    number: "003",
     title: "Internal tool",
     kind: "Dashboards · Invoicing",
     detail: "Dashboards and invoicing that replace manual spreadsheets.",
@@ -39,7 +41,7 @@ const projects = [
       <h2 id="projects-heading" class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">
         Project previews
       </h2>
-      <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">001—004</p>
+      <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">001—003</p>
     </div>
 
     <div class="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.62fr)_minmax(0,1fr)] lg:gap-12">
@@ -116,6 +118,8 @@ const projects = [
               </div>
             </div>
 
+            {/* 3D viewer tile parked — not shown in the wheel for now; kept for when the
+                concept is repositioned for a specific buyer. Uncomment to restore.
             <div data-project-preview="viewer" class="h-full" hidden>
               <button type="button" data-open-preview="viewer" class="group relative block h-full w-full overflow-hidden border border-white/10 bg-[#1d1d1b] text-left text-paper">
                 <svg viewBox="0 0 220 170" class="absolute inset-x-0 top-1/2 mx-auto h-[70%] w-auto -translate-y-1/2" aria-hidden="true">
@@ -157,6 +161,7 @@ const projects = [
                 </span>
               </button>
             </div>
+            */}
           </div>
 
             <div data-project-preview="mobile" class="flex h-full items-center justify-center" hidden>
@@ -251,6 +256,7 @@ const projects = [
     title="Etxea restaurant website preview"
     frameBg="#efe6d8"
   />
+  {/* 3D viewer modal parked with the wheel entry; uncomment both together.
   <PreviewModal
     id="viewer"
     src="/demos/apartment"
@@ -259,6 +265,7 @@ const projects = [
     title="Studio 01 interactive 3D apartment"
     frameBg="#f5f3ee"
   />
+  */}
 </section>
 
 <script>
