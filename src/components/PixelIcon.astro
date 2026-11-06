@@ -1,0 +1,42 @@
+---
+import { pixelIcons, type PixelIconName } from "./pixelIcons";
+
+interface Props {
+  name: PixelIconName;
+  class?: string;
+  /** Accessible name. Omit for purely decorative icons. */
+  label?: string;
+}
+
+const { name, class: className, label } = Astro.props;
+const rows: readonly string[] = pixelIcons[name];
+const height = rows.length;
+const width = Math.max(...rows.map((row) => row.length));
+
+// Merge each horizontal run of lit pixels into one rectangle.
+let d = "";
+rows.forEach((row, y) => {
+  let x = 0;
+  while (x < row.length) {
+    if (row[x] !== "#") {
+      x += 1;
+      continue;
+    }
+    const start = x;
+    while (x < row.length && row[x] === "#") x += 1;
+    d += `M${start} ${y}h${x - start}v1h-${x - start}z`;
+  }
+});
+---
+
+<svg
+  viewBox={`0 0 ${width} ${height}`}
+  class={className}
+  fill="currentColor"
+  shape-rendering="crispEdges"
+  role={label ? "img" : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : "true"}
+>
+  <path d={d}></path>
+</svg>

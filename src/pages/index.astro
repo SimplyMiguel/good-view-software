@@ -1,68 +1,91 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ProjectWheel from "../components/ProjectWheel.astro";
-import PhoneFrame from "../components/PhoneFrame.astro";
-import ServiceArt from "../components/ServiceArt.astro";
+import PixelIcon from "../components/PixelIcon.astro";
+import type { PixelIconName } from "../components/pixelIcons";
 import { site } from "../config";
 
 const email = site.email?.trim();
-const mailto = email
-  ? `mailto:${email}?subject=${encodeURIComponent("Project inquiry")}`
-  : undefined;
 
-const services = [
+const services: { number: string; icon: PixelIconName; title: string; body: string; example?: string }[] = [
   {
     number: "01",
-    kind: "website" as const,
+    icon: "website",
     title: "Websites",
     body: "Fast, mobile-friendly sites that explain what you do and make it easy for customers to contact you.",
+    example: "See a restaurant site",
   },
   {
     number: "02",
-    kind: "viewer" as const,
+    icon: "viewer",
     title: "3D viewers",
     body: "Interactive product views customers can rotate, configure, and inspect in the browser.",
   },
   {
     number: "03",
-    kind: "mobile" as const,
+    icon: "mobile",
     title: "Mobile apps",
     body: "iOS and Android apps for booking, ordering, or work out in the field.",
+    example: "See a booking app",
   },
   {
     number: "04",
-    kind: "tools" as const,
+    icon: "tools",
     title: "Internal tools",
     body: "Custom dashboards and invoicing tools that replace manual spreadsheets.",
+    example: "See a dashboard",
   },
 ];
 
+const steps = [
+  { title: "Talk", body: "A short conversation about your business, who will use the software, and what is painful today." },
+  { title: "Scope", body: "A written scope and a price: what gets built first, what it costs, and what is left out on purpose." },
+  { title: "Build", body: "Working software on a preview link every week or two, so you see progress instead of waiting for a reveal." },
+  { title: "Support", body: "Code, accounts and documentation are in your name, and I stay on to maintain what I built." },
+];
+
 const reasons = [
+  { title: "One person, start to finish", body: "The person who scopes the work designs it, writes the code and supports it afterwards. Nothing is lost in a hand-off." },
+  { title: "Written scope before code", body: "You get a plain-language scope and a price before development starts. Nothing is billed before you approve it." },
+  { title: "Working software early", body: "A preview link every week or two, not a big reveal months later. You can use it and react to it as it is built." },
+  { title: "Built to be handed over", body: "Code, accounts and documentation are in your name, so the software stays yours if we stop working together." },
+];
+
+const faqs = [
   {
-    number: "01",
-    title: "One person, start to finish",
-    body: "The person who scopes the work designs it, writes the code and supports it afterwards. Nothing is lost in a hand-off.",
+    q: "How does a project start?",
+    a: "With a conversation. After that you get a written scope and a quote. Scope and pricing are agreed before development begins, and nothing is billed before you approve it.",
   },
   {
-    number: "02",
-    title: "Written scope before code",
-    body: "You get a plain-language scope and a price before development starts. Nothing is billed before you approve it.",
+    q: "I'm not sure what I need. Is that a problem?",
+    a: "No. Describe your business and what is difficult about your current process, and we will work out the smallest version that helps. Sometimes the answer is a tool you already pay for.",
   },
   {
-    number: "03",
-    title: "Working software early",
-    body: "A preview link every week or two, not a big reveal months later. You can use it and react to it as it is built.",
+    q: "Is any project too small?",
+    a: "No. One spreadsheet that eats an afternoon, one fragile report, or a fix to an existing site is a fine place to start.",
   },
   {
-    number: "04",
-    title: "Built to be handed over",
-    body: "Code, accounts and documentation are in your name, so the software stays yours if we stop working together.",
+    q: "Who will I be working with?",
+    a: "Me, directly. I design, build and support every project myself, so there are no account managers or hand-offs.",
   },
   {
-    number: "05",
-    title: "No idea too small",
-    body: "From one spreadsheet that eats an afternoon to the system the business runs on, the job is to find the version that works.",
+    q: "Who owns the finished software?",
+    a: "You do. Code, accounts and documentation are set up in your name, so the software stays yours even if we stop working together.",
   },
+  {
+    q: "What happens after launch?",
+    a: "I stay on to look after what I built, with fixes and updates as you need them, so you are not left with something nobody understands.",
+  },
+];
+
+const needs = ["Website", "3D viewer", "Mobile app", "Internal tool", "Not sure yet"];
+const timelines = ["As soon as possible", "This quarter", "Just exploring"];
+
+const navLinks = [
+  { href: "#services", label: "Services" },
+  { href: "#work", label: "Work" },
+  { href: "#process", label: "Process" },
+  { href: "#faq", label: "FAQ" },
 ];
 ---
 
@@ -70,179 +93,160 @@ const reasons = [
   title={`${site.name} · Custom websites and software`}
   description="Independent software developer in Bakersfield, California, building practical websites, dashboards, and custom tools for small businesses and nonprofits."
 >
-  <header class="sticky top-0 z-40 border-b border-line/80 bg-paper/85 backdrop-blur-md">
-    <div class="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between gap-6 px-5 sm:px-8">
-      <a href="/" class="flex items-center gap-2">
-        <span class="grid h-7 w-7 place-items-center rounded-md bg-brand text-[13px] font-extrabold text-white" aria-hidden="true">G</span>
-        <span class="text-[15px] font-semibold tracking-[-0.02em]">{site.name}</span>
+  <header data-site-header class="site-header fixed inset-x-0 top-0 z-50">
+    <div class="mx-auto flex h-16 w-full max-w-[1280px] items-center justify-between gap-4 px-5 sm:px-8">
+      <a href="/" class="flex items-center gap-3" aria-label={`${site.name} home`}>
+        <PixelIcon name="mark" class="h-7 w-7" />
+        <span class="font-display text-[22px] leading-none tracking-[-0.02em]">Good View</span>
       </a>
-      <nav aria-label="Main" class="hidden items-center gap-7 text-[14px] font-medium text-ink-700 md:flex">
-        <a href="#services" class="transition-colors hover:text-ink-950">Services</a>
-        <a href="#work" class="transition-colors hover:text-ink-950">Work</a>
-        <a href="#about" class="transition-colors hover:text-ink-950">About</a>
-        <a href="#contact" class="transition-colors hover:text-ink-950">Contact</a>
+      <nav aria-label="Main" class="hidden items-center gap-8 text-[14px] md:flex">
+        {
+          navLinks.map((link) => (
+            <a href={link.href} class="opacity-85 transition-opacity hover:opacity-100">
+              {link.label}
+            </a>
+          ))
+        }
       </nav>
-      <a
-        href="#contact"
-        class="inline-flex h-10 items-center gap-2 rounded-[8px] bg-brand px-4 text-[14px] font-semibold text-white transition-colors hover:bg-brand-2"
-      >
+      <a href="#contact" class="px-btn px-frame !h-10 !px-4 text-[14px]">
         Start a project
-        <span aria-hidden="true">→</span>
+        <PixelIcon name="arrow" class="h-3 w-3.5" />
       </a>
     </div>
   </header>
 
   <main id="main">
-    <!-- Hero: heavy headline on the left, brand plane and live preview on the right -->
-    <section class="relative overflow-hidden">
-      <div
-        aria-hidden="true"
-        class="pointer-events-none absolute right-0 top-0 hidden h-full w-[52%] bg-brand md:block"
-        style="clip-path: polygon(160px 0, 100% 0, 100% 100%, 160px 100%, 0 50%)"
-      >
-      </div>
+    <!-- Hero -->
+    <section data-hero class="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-ink-800 text-white">
+      <img
+        src="/images/hero-bg.avif"
+        alt=""
+        fetchpriority="high"
+        class="absolute inset-0 -z-10 h-full w-full object-cover object-[55%_45%]"
+      />
+      <div aria-hidden="true" class="absolute inset-0 -z-10 bg-gradient-to-r from-black/45 via-black/10 to-transparent"></div>
 
-      <div class="relative mx-auto grid w-full max-w-[1240px] items-center gap-12 px-5 py-14 sm:px-8 md:min-h-[600px] md:grid-cols-12 md:gap-6 md:py-20">
-        <div class="md:col-span-6 lg:col-span-6">
-          <h1 class="max-w-[13ch] text-[clamp(2.6rem,4.6vw,3.9rem)] leading-[1.02] tracking-[-0.045em]">
+      <div class="mx-auto w-full max-w-[1280px] px-5 pb-28 pt-28 sm:px-8">
+        <div class="glass-card px-frame max-w-[620px] p-7 sm:p-10" style="--px-c: rgb(255 255 255 / 0.5)">
+          <p class="font-mono text-[11px] uppercase tracking-[0.16em] text-white/85">Bakersfield, California · independent studio</p>
+          <h1 class="text-glow mt-5 font-pixel text-[clamp(2.4rem,5vw,3.8rem)] leading-[1.04] tracking-[-0.025em]">
             Websites and software your business runs on.
           </h1>
-          <p class="mt-6 max-w-[46ch] text-[17px] leading-[1.6] text-ink-500 sm:text-[18px]">
-            Good View builds the site customers find you through and the tools your team uses every day. One developer in Bakersfield, California — from first sketch to long-term support.
+          <p class="mt-6 max-w-[46ch] text-[16px] leading-[1.6] text-white/95">
+            Good View builds the site customers find you through and the tools your team uses every day. One developer, from first sketch to long-term support.
           </p>
-          <div class="mt-9 flex flex-wrap items-center gap-3">
-            <a href="#contact" class="inline-flex h-[46px] items-center gap-2 rounded-[8px] bg-brand px-5 text-[15px] font-semibold text-white transition-colors hover:bg-brand-2">
+          <div class="mt-9 flex flex-wrap items-center gap-4">
+            <a href="#contact" class="px-btn px-frame">
               Start a project
-              <span aria-hidden="true">→</span>
+              <PixelIcon name="arrow" class="h-3 w-3.5" />
             </a>
-            <a href="#work" class="inline-flex h-[46px] items-center gap-2 rounded-[8px] border border-line-strong px-5 text-[15px] font-semibold text-ink-950 transition-colors hover:bg-paper-soft">
-              See the work
-              <span aria-hidden="true">→</span>
-            </a>
-          </div>
-          <p class="mt-8 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-300">
-            Websites · Mobile apps · Internal tools
-          </p>
-        </div>
-
-        <div class="relative md:col-span-6 md:pl-8">
-          <div class="overflow-hidden rounded-[16px] border border-line bg-white shadow-[0_24px_60px_-24px_rgba(10,12,30,0.28)]">
-            <div class="flex h-9 items-center gap-1.5 border-b border-line bg-paper-soft px-3">
-              <span class="h-2 w-2 rounded-full bg-line-strong"></span>
-              <span class="h-2 w-2 rounded-full bg-line-strong"></span>
-              <span class="h-2 w-2 rounded-full bg-line-strong"></span>
-              <span class="ml-2 truncate font-mono text-[10px] text-ink-300">etxea.example</span>
-            </div>
-            <div class="flex items-center justify-between border-b border-line px-4 py-2.5">
-              <span class="text-[11px] font-semibold uppercase tracking-[0.08em]">Etxea</span>
-              <span class="flex gap-3 font-mono text-[9px] uppercase tracking-[0.1em] text-ink-500">
-                <span>Menu</span><span class="hidden sm:inline">Visit</span><span>Book</span>
-              </span>
-            </div>
-            <div class="relative">
-              <img src="/demos/restaurant/room.jpg" alt="Etxea restaurant site concept: hero photograph behind the restaurant name and booking link" class="aspect-[16/11] w-full object-cover" />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent"></div>
-              <div class="absolute inset-x-0 bottom-0 p-4 text-white">
-                <p class="text-[22px] font-semibold leading-none tracking-[-0.03em]">Basque bar &amp; table</p>
-                <p class="mt-1.5 text-[11px] text-white/80">Downtown Bakersfield · open Thursday to Sunday</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="absolute -bottom-10 -right-2 hidden sm:-right-6 sm:block">
-            <PhoneFrame width="128px" label="Ridgeline Electric field app: three jobs today, first is a panel upgrade at nine">
-              <div class="flex h-full flex-col">
-                <div class="flex items-center justify-between px-3 pb-1.5 pt-4">
-                  <span class="font-mono text-[9px] text-ink-500">9:41</span>
-                  <span class="font-mono text-[9px] text-ink-500">100%</span>
-                </div>
-                <div class="flex-1 px-3">
-                  <p class="font-mono text-[8px] uppercase tracking-[0.12em] text-ink-500">Ridgeline Electric</p>
-                  <p class="mt-2 text-[15px] font-semibold leading-[1.05] tracking-[-0.03em]">Today's jobs</p>
-                  <div class="mt-3 space-y-1.5">
-                    <div class="rounded-md bg-ink-950 px-2 py-1.5 text-white">
-                      <p class="text-[9px] font-semibold">Panel upgrade</p>
-                      <p class="font-mono text-[8px] text-white/60">9:00 · 1042</p>
-                    </div>
-                    <div class="rounded-md border border-line px-2 py-1.5">
-                      <p class="text-[9px] font-semibold">EV charger</p>
-                      <p class="font-mono text-[8px] text-ink-500">11:30 · 1043</p>
-                    </div>
-                    <div class="rounded-md border border-line px-2 py-1.5">
-                      <p class="text-[9px] font-semibold">Inspection</p>
-                      <p class="font-mono text-[8px] text-ink-500">14:00 · 1044</p>
-                    </div>
-                  </div>
-                </div>
-                <p class="border-t border-line px-3 py-2 font-mono text-[8px] uppercase tracking-[0.1em] text-ink-500">3 jobs today</p>
-              </div>
-            </PhoneFrame>
+            <a href="#work" class="px-btn px-btn-ghost px-frame">See the work</a>
           </div>
         </div>
       </div>
+      <div aria-hidden="true" class="px-dither-edge"></div>
     </section>
 
-    <!-- What we build -->
-    <section id="services" class="border-t border-line">
-      <div class="mx-auto w-full max-w-[1240px] px-5 py-16 sm:px-8 sm:py-24">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-          <h2 class="max-w-[18ch] text-[clamp(1.75rem,3vw,2.5rem)]">What we build</h2>
-          <p class="max-w-[38ch] text-[15px] leading-[1.6] text-ink-500">
-            Four things, done properly — a site that brings in enquiries, an app that saves a trip, a tool that ends the spreadsheet.
-          </p>
+    <!-- Proof strip: what you can count on, before anything else -->
+    <section aria-label="How we work" class="border-b border-line">
+      <ul class="mx-auto grid max-w-[1280px] divide-y divide-line px-5 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-8">
+        {
+          [
+            ["Written quote first", "Scope and price agreed before development begins."],
+            ["Nothing billed unapproved", "You approve the scope before any invoice."],
+            ["Same person throughout", "Whoever scopes it builds it and supports it."],
+          ].map(([title, body]) => (
+            <li class="flex items-start gap-4 py-6 sm:px-6 sm:first:pl-0 sm:last:pr-0">
+              <PixelIcon name="check" class="mt-1 h-4 w-4 shrink-0 text-leaf" />
+              <div>
+                <p class="text-[15px] font-semibold tracking-[-0.01em]">{title}</p>
+                <p class="mt-1 text-[14px] leading-[1.5] text-ink-600">{body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <!-- Services -->
+    <section id="services" class="px-5 py-[100px] sm:px-8 md:py-[140px]">
+      <div class="mx-auto max-w-[1280px]">
+        <div class="flex flex-wrap items-end justify-between gap-6">
+          <div class="max-w-[640px]">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-leaf-deep">What I build</p>
+            <h2 class="mt-4 text-[clamp(2.1rem,4vw,3.2rem)] text-ink-800">Small businesses run on spreadsheets and old websites. They don't have to.</h2>
+          </div>
+          <a href="#contact" class="font-mono text-[12px] uppercase tracking-[0.12em] underline decoration-leaf decoration-2 underline-offset-[6px] hover:text-leaf-deep">
+            Not sure which? Start here
+          </a>
         </div>
 
-        <div class="mt-12 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="mt-14 grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
           {
             services.map((service) => (
-              <article class="flex h-full flex-col rounded-[16px] border border-line bg-paper-soft p-5 transition-colors hover:border-line-strong">
-                <div class="flex h-20 items-center text-ink-950 sm:h-[96px]">
-                  <ServiceArt kind={service.kind} />
+              <article class="px-frame group flex h-full flex-col bg-white p-6 transition-colors hover:bg-leaf-tint" style="--px: 2px">
+                <PixelIcon name={service.icon} class="h-14 w-14 text-ink-950" />
+                <div class="mt-7 flex items-baseline gap-3">
+                  <span class="font-mono text-[11px] text-leaf-deep">{service.number}</span>
+                  <h3 class="text-[28px] leading-none text-ink-800">{service.title}</h3>
                 </div>
-                <div class="mt-6 flex items-baseline gap-3 border-t border-line pt-4">
-                  <span class="font-mono text-[11px] tracking-[0.1em] text-brand-text">{service.number}</span>
-                  <h3 class="text-[18px] font-semibold tracking-[-0.02em]">{service.title}</h3>
-                </div>
-                <p class="mt-2 max-w-[30ch] text-[14px] leading-[1.6] text-ink-500">{service.body}</p>
+                <p class="mt-3 flex-1 text-[14px] leading-[1.6] text-ink-600">{service.body}</p>
+                {service.example ? (
+                  <a href="#work" class="mt-6 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-950 hover:text-leaf-deep">
+                    {service.example}
+                    <PixelIcon name="arrow" class="h-2.5 w-3" />
+                  </a>
+                ) : (
+                  <span class="mt-6 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-400">Ask for a demo</span>
+                )}
               </article>
             ))
           }
-        </div>
-
-        <div class="mt-14 grid gap-2 rounded-[16px] bg-brand-tint px-6 py-5 sm:grid-cols-3 sm:gap-6">
-          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-brand-text">Pricing</p>
-          <p class="text-[14px] leading-[1.6] text-ink-700 sm:col-span-2 sm:max-w-[62ch]">
-            Every project starts with a conversation and a written quote. Scope and pricing are agreed before development begins, and nothing is billed before you approve it.
-          </p>
         </div>
       </div>
     </section>
 
     <!-- Work -->
-    <section id="work" class="border-t border-line bg-paper-soft">
-      <div class="mx-auto w-full max-w-[1240px] px-5 py-16 sm:px-8 sm:py-24">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-          <h2 class="max-w-[18ch] text-[clamp(1.75rem,3vw,2.5rem)]">Recent work</h2>
-          <p class="max-w-[38ch] text-[15px] leading-[1.6] text-ink-500">
-            Concept previews, not client work — pick a project on the right to see the kind of thing each one stands for.
+    <section id="work" class="border-y border-line bg-paper-soft px-5 py-[100px] sm:px-8 md:py-[140px]">
+      <div class="mx-auto max-w-[1280px]">
+        <div class="max-w-[640px]">
+          <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-leaf-deep">Recent work</p>
+          <h2 class="mt-4 text-[clamp(2.1rem,4vw,3.2rem)] text-ink-800">Concept previews you can open.</h2>
+          <p class="mt-4 max-w-[52ch] text-[15px] leading-[1.6] text-ink-600">
+            Concept previews, not client work. Pick a project to see the kind of thing each one stands for, then open it and click around.
           </p>
         </div>
-
         <ProjectWheel />
+        <div class="mt-12 flex flex-wrap items-center gap-5">
+          <a href="#contact" class="px-btn px-frame">
+            Start a project like this
+            <PixelIcon name="arrow" class="h-3 w-3.5" />
+          </a>
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-600">Quote in writing before any work</p>
+        </div>
       </div>
     </section>
 
-    <!-- Why clients work with us -->
-    <section id="why" class="border-t border-line">
-      <div class="mx-auto w-full max-w-[1240px] px-5 py-16 sm:px-8 sm:py-24">
-        <h2 class="max-w-[20ch] text-[clamp(1.75rem,3vw,2.5rem)]">Why clients work with us</h2>
-        <ol class="mt-12 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Process -->
+    <section id="process" class="px-5 py-[100px] sm:px-8 md:py-[140px]">
+      <div class="mx-auto max-w-[1280px]">
+        <div class="max-w-[640px]">
+          <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-leaf-deep">How a project runs</p>
+          <h2 class="mt-4 text-[clamp(2.1rem,4vw,3.2rem)] text-ink-800">Four steps, one person.</h2>
+        </div>
+
+        <ol class="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0">
           {
-            reasons.map((reason) => (
-              <li class="border-t border-line pt-4">
-                <span class="font-mono text-[11px] tracking-[0.1em] text-brand-text">{reason.number}</span>
-                <h3 class="mt-3 text-[16px] font-semibold tracking-[-0.02em]">{reason.title}</h3>
-                <p class="mt-2 text-[14px] leading-[1.6] text-ink-500">{reason.body}</p>
+            steps.map((step, index) => (
+              <li class="relative lg:pr-8">
+                <div class="flex items-center gap-4">
+                  <span class="px-frame grid h-12 w-12 place-items-center bg-ink-950 font-pixel text-[26px] leading-none text-white" style="--px: 2px">
+                    {index + 1}
+                  </span>
+                  {index < steps.length - 1 && <span aria-hidden="true" class="hidden h-0 flex-1 border-t-[3px] border-dotted border-ink-400 lg:block" />}
+                </div>
+                <h3 class="mt-6 text-[30px] leading-none text-ink-800">{step.title}</h3>
+                <p class="mt-3 max-w-[30ch] text-[14px] leading-[1.6] text-ink-600">{step.body}</p>
               </li>
             ))
           }
@@ -250,51 +254,105 @@ const reasons = [
       </div>
     </section>
 
-    <!-- About -->
-    <section id="about" class="border-t border-line bg-paper-soft">
-      <div class="mx-auto grid w-full max-w-[1240px] gap-10 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-12 lg:gap-6">
-        <div class="lg:col-span-6">
-          <h2 class="max-w-[16ch] text-[clamp(1.75rem,3vw,2.5rem)]">Built by the person you hire.</h2>
-        </div>
-        <div class="max-w-[54ch] space-y-4 text-[16px] leading-[1.65] text-ink-700 lg:col-span-6">
-          <p>
-            I'm an independent developer based in Bakersfield. I build websites and business software for small businesses and nonprofits, and I do the work myself.
-          </p>
-          <p>
-            You work directly with the person designing, building, and supporting your project. No account managers, no hand-offs, no team you never meet.
-          </p>
-          <p>
-            I care about software that earns its place: it should remove a repetitive task, make information easier to find, or help customers reach you.
-          </p>
+    <!-- Why / about: image band -->
+    <section id="about" class="px-3 pb-3 sm:px-5 sm:pb-5">
+      <div class="relative isolate overflow-hidden text-white">
+        <img src="/images/hero-bg.avif" alt="" loading="lazy" class="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_80%]" />
+        <div aria-hidden="true" class="absolute inset-0 -z-10 bg-gradient-to-r from-black/70 via-black/40 to-black/10"></div>
+        <div class="mx-auto grid max-w-[1280px] gap-12 px-6 py-20 sm:px-10 md:py-28 lg:grid-cols-12">
+          <div class="lg:col-span-5">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-white/80">About</p>
+            <h2 class="text-glow mt-4 text-[clamp(2.1rem,4vw,3.2rem)] leading-[1.06]">Built by the person you hire.</h2>
+            <p class="mt-5 max-w-[42ch] text-[15px] leading-[1.6] text-white/90">
+              I'm an independent developer based in Bakersfield. I build websites and business software for small businesses and nonprofits, and I do the work myself. No account managers, no hand-offs, no team you never meet.
+            </p>
+            <a href="#contact" class="px-btn px-btn-ghost px-frame mt-8">
+              Talk to me
+              <PixelIcon name="arrow" class="h-3 w-3.5" />
+            </a>
+          </div>
+          <ul class="grid gap-5 sm:grid-cols-2 lg:col-span-7">
+            {
+              reasons.map((reason) => (
+                <li class="glass-card px-frame p-6" style="--px: 2px; --px-c: rgb(255 255 255 / 0.4)">
+                  <PixelIcon name="check" class="h-4 w-4 text-white" />
+                  <h3 class="text-glow mt-3 text-[26px] leading-[1.05]">{reason.title}</h3>
+                  <p class="mt-2 text-[14px] leading-[1.55] text-white/90">{reason.body}</p>
+                </li>
+              ))
+            }
+          </ul>
         </div>
       </div>
     </section>
 
-    <!-- Contact -->
-    <section id="contact" class="bg-brand text-white">
-      <div class="mx-auto w-full max-w-[1240px] px-5 py-16 sm:px-8 sm:py-24">
-        <div class="grid gap-10 lg:grid-cols-12 lg:gap-6">
-          <h2 class="max-w-[14ch] text-[clamp(2rem,4vw,3.2rem)] text-white lg:col-span-6">Tell me what you need.</h2>
-          <div class="max-w-[42ch] lg:col-span-6 lg:pt-2">
-            <p class="text-[16px] leading-[1.65] text-white/85">
-              Describe your business, what you want to build, and what's difficult about your current process. Not sure what you need? That's fine too.
+    <!-- FAQ -->
+    <section id="faq" class="px-5 py-[100px] sm:px-8 md:py-[140px]">
+      <div class="mx-auto grid max-w-[1280px] gap-12 lg:grid-cols-12">
+        <div class="lg:col-span-4">
+          <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-leaf-deep">Questions</p>
+          <h2 class="mt-4 text-[clamp(2.1rem,4vw,3.2rem)] text-ink-800">Before you get in touch.</h2>
+          <p class="mt-4 max-w-[34ch] text-[15px] leading-[1.6] text-ink-600">Not answered here? Tell me about your project and ask directly.</p>
+        </div>
+        <div class="lg:col-span-8">
+          {
+            faqs.map((item) => (
+              <details class="group border-t border-line last:border-b">
+                <summary class="flex cursor-pointer items-center justify-between gap-6 py-6 text-[18px] font-semibold tracking-[-0.01em] focus-visible:outline-offset-[-2px]">
+                  {item.q}
+                  <span class="shrink-0 text-ink-950">
+                    <PixelIcon name="plus" class="h-4 w-4 group-open:hidden" />
+                    <PixelIcon name="minus" class="hidden h-4 w-4 group-open:block" />
+                  </span>
+                </summary>
+                <p class="max-w-[62ch] pb-6 text-[15px] leading-[1.65] text-ink-600">{item.a}</p>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact: a short brief that sets up the first conversation -->
+    <section id="contact" class="border-t border-line bg-paper-soft px-5 py-[100px] sm:px-8 md:py-[140px]">
+      <div class="mx-auto grid max-w-[1280px] gap-12 lg:grid-cols-12">
+        <div class="lg:col-span-5">
+          <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-leaf-deep">Start a project</p>
+          <h2 class="mt-4 text-[clamp(2.1rem,4vw,3.2rem)] text-ink-800">Tell me what you need.</h2>
+          <p class="mt-5 max-w-[40ch] text-[15px] leading-[1.6] text-ink-600">
+            Pick what fits, and the first message writes itself. You get a written scope and a quote before any work begins.
+          </p>
+        </div>
+
+        <div data-brief data-email={email ?? ""} class="px-frame bg-white p-6 sm:p-9 lg:col-span-7" style="--px: 3px">
+          <fieldset>
+            <legend class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-600">1 · What do you need?</legend>
+            <div class="mt-4 flex flex-wrap gap-3.5">
+              {needs.map((label) => <button type="button" data-group="need" aria-pressed="false" class="px-chip px-frame">{label}</button>)}
+            </div>
+          </fieldset>
+          <fieldset class="mt-9">
+            <legend class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-600">2 · When?</legend>
+            <div class="mt-4 flex flex-wrap gap-3.5">
+              {timelines.map((label) => <button type="button" data-group="when" aria-pressed="false" class="px-chip px-frame">{label}</button>)}
+            </div>
+          </fieldset>
+
+          <div class="mt-9 border-t border-line pt-6">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-600">Your message</p>
+            <p data-brief-summary aria-live="polite" class="mt-3 min-h-[3.2em] text-[15px] leading-[1.6] text-ink-800">
+              Choose one or more above.
             </p>
+
             {
               email ? (
-                <div class="mt-8">
-                  <a
-                    href={mailto}
-                    class="inline-flex h-[46px] items-center gap-2 rounded-[8px] bg-white px-5 text-[15px] font-semibold text-brand-text transition-colors hover:bg-brand-tint"
-                  >
-                    Email about a project
-                    <span aria-hidden="true">→</span>
-                  </a>
-                  <p class="mt-5 text-[14px] text-white/75">
-                    Or write to <a href={mailto} class="underline underline-offset-4">{email}</a>.
-                  </p>
-                </div>
+                <a data-brief-send href="#" class="px-btn px-frame mt-6">
+                  Email this to Good View
+                  <PixelIcon name="arrow" class="h-3 w-3.5" />
+                </a>
               ) : (
-                <p class="mt-8 inline-flex items-center gap-2 rounded-[8px] bg-white px-4 py-3 font-mono text-[12px] uppercase tracking-[0.12em] text-brand-text">
+                <p class="mt-6 inline-flex items-center gap-3 font-mono text-[12px] uppercase tracking-[0.12em] text-ink-800">
+                  <span class="h-2.5 w-2.5 bg-leaf" aria-hidden="true" />
                   {site.inquiriesNote}
                 </p>
               )
@@ -306,9 +364,70 @@ const reasons = [
   </main>
 
   <footer class="border-t border-line">
-    <div class="mx-auto flex w-full max-w-[1240px] flex-col gap-2 px-5 py-7 text-[13px] text-ink-500 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-      <p>{site.name} · {site.location}</p>
-      <p>Operated by {site.operator}.</p>
+    <div class="mx-auto flex max-w-[1280px] flex-col gap-4 px-5 py-9 text-[13px] text-ink-600 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+      <div class="flex items-center gap-3">
+        <PixelIcon name="mark" class="h-5 w-5 text-ink-950" />
+        <p>© {new Date().getFullYear()} {site.name} · {site.location}</p>
+      </div>
+      <nav aria-label="Footer" class="flex flex-wrap gap-x-5 gap-y-1">
+        <a href="#services" class="hover:text-ink-950">Services</a>
+        <a href="#work" class="hover:text-ink-950">Work</a>
+        <a href="#process" class="hover:text-ink-950">Process</a>
+        <a href="#faq" class="hover:text-ink-950">FAQ</a>
+        <a href="#contact" class="hover:text-ink-950">Contact</a>
+      </nav>
+      <p>Operated by {site.operator}</p>
     </div>
   </footer>
 </Layout>
+
+<script>
+  // Header: glass over the hero image, solid once the hero has scrolled away.
+  const header = document.querySelector<HTMLElement>("[data-site-header]");
+  const hero = document.querySelector<HTMLElement>("[data-hero]");
+  if (header && hero) {
+    const sync = () => {
+      header.dataset.solid = String(hero.getBoundingClientRect().bottom < 72);
+    };
+    sync();
+    addEventListener("scroll", sync, { passive: true });
+    addEventListener("resize", sync);
+  }
+
+  // Project brief: chips build the first message.
+  const brief = document.querySelector<HTMLElement>("[data-brief]");
+  if (brief) {
+    const summary = brief.querySelector<HTMLElement>("[data-brief-summary]")!;
+    const send = brief.querySelector<HTMLAnchorElement>("[data-brief-send]");
+    const email = brief.dataset.email ?? "";
+    const chips = [...brief.querySelectorAll<HTMLButtonElement>("button[data-group]")];
+
+    const selected = (group: string) =>
+      chips.filter((chip) => chip.dataset.group === group && chip.getAttribute("aria-pressed") === "true").map((chip) => chip.textContent!.trim());
+
+    const update = () => {
+      const needs = selected("need");
+      const [when] = selected("when");
+      const parts: string[] = [];
+      if (needs.length) parts.push(`I'm looking for: ${needs.join(", ")}.`);
+      if (when) parts.push(`Timeline: ${when.toLowerCase()}.`);
+      const text = parts.join(" ");
+      summary.textContent = text || "Choose one or more above.";
+      if (send) {
+        const body = `${text || "I'd like to talk about a project."}\n\nAbout my business:\n\nWhat's difficult right now:\n`;
+        send.href = `mailto:${email}?subject=${encodeURIComponent("Project inquiry")}&body=${encodeURIComponent(body)}`;
+      }
+    };
+
+    for (const chip of chips) {
+      chip.addEventListener("click", () => {
+        const single = chip.dataset.group === "when";
+        const next = chip.getAttribute("aria-pressed") !== "true";
+        if (single) for (const other of chips) if (other.dataset.group === "when") other.setAttribute("aria-pressed", "false");
+        chip.setAttribute("aria-pressed", String(next));
+        update();
+      });
+    }
+    update();
+  }
+</script>

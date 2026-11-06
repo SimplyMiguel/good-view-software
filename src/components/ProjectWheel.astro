@@ -42,7 +42,7 @@ const projects = [
 
     <div class="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-10">
       <div>
-        <div class="flex aspect-[4/3] flex-col overflow-hidden rounded-[16px] bg-ink-950 p-3 shadow-[0_24px_60px_-28px_rgba(10,12,30,0.45)] sm:p-5" aria-live="polite">
+        <div class="flex aspect-[4/3] flex-col overflow-hidden rounded-2xl border border-white/20 bg-ink-950 p-3 shadow-[0_2px_6px_rgba(0,0,0,0.15)] sm:p-5" aria-live="polite">
           <div class="flex items-center justify-between pb-3 font-mono text-[9px] uppercase tracking-[0.1em] text-paper/45">
             <span>Concept preview</span>
             <span>Not client work</span>
@@ -220,10 +220,10 @@ const projects = [
                   aria-selected={index === 0 ? "true" : "false"}
                   data-project-option={project.id}
                   data-active={index === 0 ? "true" : "false"}
-                  class="group block h-[76px] w-full snap-center border-t border-line pt-2.5 text-left text-ink-300 transition-colors data-[active=true]:border-brand data-[active=true]:text-ink-950"
+                  class="group block h-[76px] w-full snap-center border-t border-line pt-2.5 text-left text-ink-300 transition-colors data-[active=true]:border-ink-950 data-[active=true]:text-ink-950"
                 >
                   <span class="flex items-baseline justify-between gap-4">
-                    <span class="text-[24px] font-semibold leading-[1.1] tracking-[-0.03em] sm:text-[28px]">{project.title}</span>
+                    <span class="font-display text-[28px] leading-[1.05] tracking-[-0.02em] sm:text-[34px]">{project.title}</span>
                     <span class="font-mono text-[10px] tracking-[0.1em]">{project.number}</span>
                   </span>
                   <span class="mt-1 block truncate text-[12px] text-ink-500 opacity-0 group-data-[active=true]:opacity-100">
