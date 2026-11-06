@@ -127,7 +127,7 @@ const groups = [...new Set(kinds.map((k) => k.label))];
       </p>
 
       <!-- Walk mode: stand at named spots; WASD / arrows walk, drag looks around -->
-      <div data-spots hidden class="pointer-events-auto absolute left-1/2 top-[84px] z-10 -translate-x-1/2 flex-wrap items-center justify-center gap-1.5 sm:top-5">
+      <div data-spots hidden class="pointer-events-auto absolute left-1/2 top-[112px] z-10 -translate-x-1/2 flex-wrap items-center justify-center gap-1.5 sm:top-[96px]">
         <span class="font-apt-mono text-[10px] uppercase tracking-[0.12em] text-apt-muted">Stand at</span>
         <button type="button" data-spot="middle" class="rounded-full border border-apt-line bg-white/80 px-2.5 py-1 text-[11px] backdrop-blur hover:bg-white">Middle</button>
         <button type="button" data-spot="door" class="rounded-full border border-apt-line bg-white/80 px-2.5 py-1 text-[11px] backdrop-blur hover:bg-white">Entry</button>
@@ -524,6 +524,8 @@ const groups = [...new Set(kinds.map((k) => k.label))];
         const spotsBar = $("[data-spots]");
         const modeButton = $("[data-mode]");
         const hint = $("[data-hint]");
+        const railNav = stage.querySelector<HTMLElement>('nav[aria-label="Items in this room"]')!;
+        const addPanel = stage.querySelector<HTMLElement>('aside[aria-label="Add to this room"]')!;
 
         const bedPlacement = () => placements.find((p) => variantsById.get(p.variantId)?.kind === "bed");
         const SPOTS: Record<string, () => [number, number, number, number]> = {
@@ -546,8 +548,11 @@ const groups = [...new Set(kinds.map((k) => k.label))];
           modeButton.textContent = walking ? "Back to overview" : "Walk inside";
           spotsBar.hidden = !walking;
           spotsBar.style.display = walking ? "flex" : "";
+          // Editing chrome would block the first-person view: hide it while walking.
+          railNav.style.display = walking ? "none" : "";
+          addPanel.style.display = walking ? "none" : "";
           hint.textContent = walking
-            ? "W A S D or arrows to walk · Drag to look around"
+            ? "W A S D or arrows to walk · Drag to look · Scroll or pinch to zoom"
             : "Drag a piece to move · Drag empty space to orbit · Scroll to zoom";
           if (walking) {
             unpin();
@@ -576,6 +581,7 @@ const groups = [...new Set(kinds.map((k) => k.label))];
           floorPoint: (x: number, y: number) => v.floorPointAt(x, y),
           eye: () => v.eye(),
           tint: (id: string) => v.tint(id),
+          fov: () => v.fov(),
           fits: (variantId: string, x: number, z: number, rotationY?: number, ignoreId?: string) => v.fits(variantId, x, z, rotationY, ignoreId),
           setWalk,
         };

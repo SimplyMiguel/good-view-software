@@ -55,6 +55,8 @@ export interface Viewer {
   eye(): { x: number; z: number };
   /** What is painted on a piece right now: "red" (clipping), "selected", or "none". */
   tint(id: string): "red" | "selected" | "none" | null;
+  /** Current vertical field of view in degrees. */
+  fov(): number;
 }
 
 const ROOM_W = 6.4;
@@ -75,6 +77,12 @@ const FLOOR_MAX_Z = ROOM_D / 2 - WALL_T;
 const EYE_HEIGHT = 1.55;
 const PERSON_RADIUS = 0.26;
 const WALK_SPEED = 1.7;
+
+// Walking is first-person, so the lens should read like eyes, not a telephoto.
+// A 40° lens is why furniture looked oversized; ~70° is close to human vision.
+const WALK_FOV = 70;
+const WALK_FOV_MIN = 45;
+const WALK_FOV_MAX = 95;
 
 export function createViewer(container: HTMLElement): Viewer {
   const canvas = container.querySelector("canvas") ?? container.appendChild(document.createElement("canvas"));
@@ -466,6 +474,53 @@ export function createViewer(container: HTMLElement): Viewer {
   // speed turns "drag to orbit" into "drag to look". Stepping moves target and
   // camera together, so damping keeps working.
   const LOOK_RADIUS = 0.05;
+  // Walk-lens zoom. Distance cannot change without moving the eye, so zoom is
+  // the field of view: narrower = closer.
+  let walkFov = WALK_FOV;
+
+  const applyWalkFov = (next: number) => {
+    walkFov = Math.min(WALK_FOV_MAX, Math.max(WALK_FOV_MIN, next));
+    camera.fov = walkFov;
+    camera.updateProjectionMatrix();
+    dirty = true;
+  };
+
+  // Wheel/trackpad zooms the walk view; passive:false so the page does not scroll.
+  renderer.domElement.addEventListener(
+    "wheel",
+    (event) => {
+      if (!walkMode) return;
+      event.preventDefault();
+      applyWalkFov(walkFov + event.deltaY * 0.04);
+    },
+    { passive: false },
+  );
+
+  // Two-finger pinch does the same thing on touch screens.
+  const pointers = new Map<number, { x: number; y: number }>();
+  let pinch: { distance: number; fov: number } | null = null;
+  const pinchDistance = () => {
+    const [a, b] = [...pointers.values()];
+    return a && b ? Math.hypot(a.x - b.x, a.y - b.y) : 0;
+  };
+  renderer.domElement.addEventListener("pointerdown", (event) => {
+    if (!walkMode) return;
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (pointers.size === 2) pinch = { distance: pinchDistance(), fov: walkFov };
+  });
+  renderer.domElement.addEventListener("pointermove", (event) => {
+    if (!walkMode || !pointers.has(event.pointerId)) return;
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (!pinch || pointers.size !== 2) return;
+    const distance = pinchDistance();
+    if (distance > 8 && pinch.distance > 8) applyWalkFov(pinch.fov * (pinch.distance / distance));
+  });
+  const endPointer = (event: PointerEvent) => {
+    pointers.delete(event.pointerId);
+    if (pointers.size < 2) pinch = null;
+  };
+  renderer.domElement.addEventListener("pointerup", endPointer);
+  renderer.domElement.addEventListener("pointercancel", endPointer);
 
   const walkBlockedAt = (x: number, z: number) => {
     if (!insideRoom(PERSON_RADIUS, PERSON_RADIUS, x, z)) return true;
@@ -532,6 +587,7 @@ export function createViewer(container: HTMLElement): Viewer {
       controls.minPolarAngle = 0.5;
       controls.maxPolarAngle = 2.6;
       camera.near = 0.03;
+      applyWalkFov(walkFov);
       camera.updateProjectionMatrix();
       // Start in the free spot nearest the middle, looking the way the orbit camera looked.
       const look = new THREE.Vector3(controls.target.x - camera.position.x, 0, controls.target.z - camera.position.z);
@@ -548,6 +604,8 @@ export function createViewer(container: HTMLElement): Viewer {
       controls.minPolarAngle = 0.45;
       controls.maxPolarAngle = 1.32;
       camera.near = 0.05;
+      // Back to the framing lens; resize() owns it again from here.
+      camera.fov = camera.aspect < 0.8 ? 62 : 40;
       camera.updateProjectionMatrix();
       controls.reset();
     }
@@ -599,8 +657,9 @@ export function createViewer(container: HTMLElement): Viewer {
     const { width, height } = measure();
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
-    // Portrait screens need a wider field to keep the whole room in frame.
-    camera.fov = width / height < 0.8 ? 62 : 40;
+    // Portrait screens need a wider field to keep the whole room in frame. Walk
+    // mode owns its own lens, so leave it alone.
+    if (!walkMode) camera.fov = width / height < 0.8 ? 62 : 40;
     camera.updateProjectionMatrix();
     dirty = true;
   };
@@ -687,6 +746,7 @@ export function createViewer(container: HTMLElement): Viewer {
       overlayListener = cb;
     },
     setHighlight,
+    fov: () => camera.fov,
     anchors,
     tint: (id) => {
       const mats = materials.get(id);
