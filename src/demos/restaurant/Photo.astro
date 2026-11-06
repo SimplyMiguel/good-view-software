@@ -1,0 +1,25 @@
+---
+import type { DemoImage } from "./images";
+
+interface Props {
+  image: DemoImage;
+  class?: string;
+  eager?: boolean;
+}
+
+const { image, class: className = "", eager = false } = Astro.props;
+---
+
+<div class:list={["relative overflow-hidden", className]}>
+  <img
+    src={image.src}
+    alt={image.alt}
+    loading={eager ? "eager" : "lazy"}
+    decoding="async"
+    class="h-full w-full object-cover"
+  />
+  <div class="absolute left-3 bottom-3 z-10 max-w-[85%] bg-etx-cream/90 px-3 py-2 font-etx-sans">
+    <p class="text-[10px] uppercase tracking-[0.14em] text-etx-terracotta">PLACEHOLDER PHOTO</p>
+    <p class="text-[13px] text-etx-ink">{image.caption}</p>
+  </div>
+</div>

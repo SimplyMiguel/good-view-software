@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --font-etx-display: "Fraunces", Georgia, serif;
+  --font-etx-sans: "Jost", system-ui, sans-serif;
+  --font-etx-script: "Caveat", cursive;
+  --color-etx-cream: #efe6d8;
+  --color-etx-sand: #e3d6c2;
+  --color-etx-green: #1f4a3a;
+  --color-etx-terracotta: #a5452a;
+  --color-etx-ink: #1d1a16;
+}
+
+html {
+  background: var(--color-etx-cream);
+  color: var(--color-etx-ink);
+  scroll-behavior: smooth;
+}
+
+@keyframes etx-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.etx-marquee {
+  animation: etx-marquee 30s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .etx-marquee {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

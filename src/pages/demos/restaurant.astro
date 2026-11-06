@@ -1,0 +1,215 @@
+---
+import "../../styles/demo-restaurant.css";
+import { images } from "../../demos/restaurant/images";
+import Photo from "../../demos/restaurant/Photo.astro";
+
+const marquee =
+  "Pintxos at the counter ✦ Sunday family table ✦ Txakoli poured high ✦ Downtown Bakersfield ✦";
+const wrap = "mx-auto w-full max-w-[1240px] px-6 md:px-10";
+const pill =
+  "inline-block rounded-full border px-6 py-2.5 text-[12px] uppercase tracking-[0.14em]";
+const agenda = [
+  { image: images.chef, chip: "Every Thursday", title: "Txoko night with the kitchen", body: "Chef cooks one dish for the whole room, served family style at 7pm." },
+  { image: images.txakoli, chip: "Fridays", title: "Txakoli & pintxos crawl", body: "Five pintxos, three pours, one long counter. No reservation needed." },
+  { image: images.croquetas, chip: "This season", title: "Croquetas de jamón return", body: "The house favourite is back on the counter through spring." },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Etxea — Basque bar &amp; table · Bakersfield</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Jost:wght@400;500&family=Caveat:wght@500&display=swap"
+    />
+  </head>
+  <body class="font-etx-sans bg-etx-cream text-etx-ink">
+    <!-- Top bar -->
+    <header class="border-b border-etx-ink/20">
+      <div class={`${wrap} flex items-center justify-between py-4 md:grid md:grid-cols-3`}>
+        <a href="#top" class="font-etx-display text-[28px] font-semibold tracking-[0.04em]">ETXEA</a>
+        <p class="hidden text-center font-etx-display text-[15px] italic md:block">
+          Chester Avenue · Downtown Bakersfield
+        </p>
+        <div class="flex items-center justify-end gap-5">
+          <span class="hidden text-[11px] uppercase tracking-[0.14em] md:inline">Open Tue–Sun · 5pm–late</span>
+          <a href="#visit" class="rounded-full border border-etx-ink px-5 py-1.5 text-[12px] uppercase tracking-[0.14em]">Reserve</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Nav row -->
+    <nav aria-label="Sections" class="border-b border-etx-ink/20">
+      <ul class={`${wrap} flex gap-8 overflow-x-auto whitespace-nowrap py-3 text-[11px] uppercase tracking-[0.18em] md:justify-center`}>
+        <li><a href="#the-bar">The bar</a></li>
+        <li><a href="#the-restaurant">The restaurant</a></li>
+        <li><a href="#agenda">Agenda</a></li>
+        <li><a href="#visit">Visit</a></li>
+      </ul>
+    </nav>
+
+    <main id="top">
+      <!-- Hero -->
+      <section class="relative" style="height: min(78vh, 720px)">
+        <Photo image={images.hero} eager class="h-full w-full" />
+        <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-etx-ink/80 via-etx-ink/20 to-transparent"></div>
+        <div class="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-etx-cream">
+          <h1 class="font-etx-display font-semibold leading-[0.85]" style="font-size: clamp(5rem, 16vw, 13rem)">ETXEA</h1>
+          <p class="mt-4 font-etx-display text-[22px] italic">Basque bar &amp; table</p>
+        </div>
+      </section>
+
+      <!-- Marquee -->
+      <div class="overflow-hidden bg-etx-terracotta py-3 text-[13px] uppercase tracking-[0.18em] text-etx-cream">
+        <div class="etx-marquee flex w-max">
+          <span class="whitespace-nowrap pr-8">{marquee}</span>
+          <span class="whitespace-nowrap pr-8" aria-hidden="true">{marquee}</span>
+        </div>
+      </div>
+
+      <!-- Intro -->
+      <section class={`${wrap} py-20`}>
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-12">
+          <Photo image={images.room} class="aspect-[4/3] md:col-span-7" />
+          <Photo image={images.counter} class="aspect-[3/4] md:col-span-5 md:mt-16" />
+        </div>
+        <p class="mt-12 max-w-[46ch] text-[16px] leading-relaxed">
+          Etxea means "home" in Basque. We cook the way Basque families do — a counter of pintxos at the bar, long tables in the back, and nobody in a hurry. Bakersfield has fed Basque shepherds and their families for over a century; this is our corner of that story.
+        </p>
+      </section>
+
+      <!-- Welcome band -->
+      <section class="bg-etx-green text-etx-cream">
+        <div class={`${wrap} grid grid-cols-1 items-center gap-10 py-16 md:grid-cols-2`}>
+          <Photo image={images.table} class="aspect-[3/2]" />
+          <div>
+            <h2 class="font-etx-display font-semibold" style="font-size: clamp(2.5rem, 5vw, 4rem)">Ongi etorri!</h2>
+            <p class="mt-2 font-etx-display text-[22px] italic">Welcome to the house.</p>
+            <p class="mt-6 max-w-[46ch] text-[16px] leading-relaxed">
+              Once a month we set one long table for the whole room. Join the Etxea club to hear about the next one first.
+            </p>
+            <a href="#visit" class={`${pill} mt-8 border-etx-cream`}>Join the club</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Agenda -->
+      <section id="agenda" class={`${wrap} py-20`}>
+        <h2 class="font-etx-display font-semibold uppercase text-etx-green" style="font-size: clamp(2.5rem, 6vw, 5rem)">Agenda</h2>
+        <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
+          {agenda.map((a) => (
+            <article>
+              <Photo image={a.image} class="aspect-[4/5]" />
+              <span class="mt-5 inline-block border border-etx-ink px-2.5 py-1 text-[11px] uppercase tracking-[0.14em]">{a.chip}</span>
+              <h3 class="mt-3 font-etx-display text-[20px]">{a.title}</h3>
+              <p class="mt-2 text-[14px] leading-relaxed">{a.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- Script tagline -->
+      <section class="py-16 text-center">
+        <p class="-rotate-3 font-etx-script font-medium leading-tight text-etx-terracotta" style="font-size: clamp(2rem, 5vw, 3.5rem)">
+          Hungry for pintxos?<br />Pull up a stool ✦
+        </p>
+      </section>
+
+      <!-- Tabs -->
+      <section id="the-bar" class={`${wrap} pb-24`}>
+        <div role="tablist" aria-label="The bar and the restaurant" class="mb-10 flex gap-8 border-b border-etx-ink/20">
+          <button type="button" role="tab" id="tab-bar" aria-controls="panel-bar" aria-selected="true" data-tab="bar"
+            class="-mb-px border-b-2 border-transparent pb-3 text-[12px] uppercase tracking-[0.18em] aria-selected:border-etx-ink">The bar</button>
+          <button type="button" role="tab" id="tab-restaurant" aria-controls="panel-restaurant" aria-selected="false" tabindex="-1" data-tab="restaurant"
+            class="-mb-px border-b-2 border-transparent pb-3 text-[12px] uppercase tracking-[0.18em] aria-selected:border-etx-ink">The restaurant</button>
+        </div>
+        <div id="panel-bar" role="tabpanel" aria-labelledby="tab-bar" data-panel="bar" class="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
+          <Photo image={images.counter} class="aspect-[4/3]" />
+          <div>
+            <h3 class="font-etx-display text-[28px]">The counter, heart of the house</h3>
+            <p class="mt-4 max-w-[46ch] text-[16px] leading-relaxed">Pintxos come out of the kitchen all night. Point at what you want, keep your toothpicks, settle up at the end.</p>
+            <a href="#visit" class={`${pill} mt-8 border-etx-ink`}>See the menu</a>
+          </div>
+        </div>
+        <div id="the-restaurant" class="scroll-mt-8">
+          <div id="panel-restaurant" role="tabpanel" aria-labelledby="tab-restaurant" data-panel="restaurant" hidden class="grid grid-cols-1 items-center gap-10 md:grid-cols-2 [&[hidden]]:hidden">
+            <Photo image={images.table} class="aspect-[4/3]" />
+            <div>
+              <h3 class="font-etx-display text-[28px]">The back room</h3>
+              <p class="mt-4 max-w-[46ch] text-[16px] leading-relaxed">Long tables, shared platters, lamb and beans the way the shepherd hotels served them. Groups of six and up, book ahead.</p>
+              <a href="#visit" class={`${pill} mt-8 border-etx-ink`}>See the menu</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Visit -->
+      <section id="visit" class="relative flex items-center justify-center" style="height: 70vh">
+        <div class="absolute inset-0"><Photo image={images.exterior} class="h-full w-full" /></div>
+        <div class="absolute inset-0 bg-etx-ink/45"></div>
+        <div class="relative px-6 text-center text-etx-cream">
+          <h2 class="font-etx-display font-semibold uppercase" style="font-size: clamp(2.5rem, 7vw, 5.5rem)">Visit us downtown</h2>
+          <p class="mt-4 text-[16px]">Tue–Thu 5–10pm · Fri–Sat 5pm–midnight · Sun 4–9pm</p>
+          <a href="#visit" class={`${pill} mt-8 border-etx-cream`}>(661) 555-0142</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-etx-sand">
+      <div class={`${wrap} grid grid-cols-1 gap-10 py-14 md:grid-cols-3`}>
+        <div>
+          <p class="font-etx-display text-[28px] font-semibold tracking-[0.04em]">ETXEA</p>
+          <p class="mt-2 font-etx-display italic">Basque bar &amp; table</p>
+        </div>
+        <div class="text-[14px] leading-relaxed">
+          <h4 class="text-[11px] uppercase tracking-[0.18em]">Opening hours</h4>
+          <p class="mt-2">Tue–Thu 5–10pm<br />Fri–Sat 5pm–midnight<br />Sun 4–9pm</p>
+          <h4 class="mt-6 text-[11px] uppercase tracking-[0.18em]">Contact</h4>
+          <p class="mt-2">(661) 555-0142<br />hello@etxea.example</p>
+        </div>
+        <div class="relative aspect-[4/3] bg-etx-ink/10">
+          <div class="absolute left-3 bottom-3 max-w-[85%] bg-etx-cream/90 px-3 py-2">
+            <p class="text-[10px] uppercase tracking-[0.14em] text-etx-terracotta">PLACEHOLDER PHOTO</p>
+            <p class="text-[13px] text-etx-ink">PLACEHOLDER — map embed of the downtown location.</p>
+          </div>
+        </div>
+      </div>
+      <p class={`${wrap} pb-8 text-[11px]`}>Concept site by Good View Software. Etxea is a fictional restaurant.</p>
+    </footer>
+
+    <script>
+      const tabs = Array.from(document.querySelectorAll<HTMLElement>('[role="tab"]'));
+      const panels = Array.from(document.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+      function select(i: number) {
+        tabs.forEach((t, n) => {
+          t.setAttribute("aria-selected", String(n === i));
+          t.tabIndex = n === i ? 0 : -1;
+        });
+        panels.forEach((p, n) => {
+          p.hidden = n !== i;
+        });
+        tabs[i]?.focus();
+      }
+      tabs.forEach((t, i) => {
+        t.addEventListener("click", () => select(i));
+        t.addEventListener("keydown", (e) => {
+          if (e.key === "ArrowRight") select((i + 1) % tabs.length);
+          else if (e.key === "ArrowLeft") select((i - 1 + tabs.length) % tabs.length);
+        });
+      });
+
+      // Inside the preview iframe, Esc never reaches the parent's <dialog>; ask it to close.
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && window.parent !== window) {
+          window.parent.postMessage({ type: "site-preview-close" }, window.location.origin);
+        }
+      });
+    </script>
+  </body>
+</html>
