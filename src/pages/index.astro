@@ -1,210 +1,136 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { site } from "../config";
+
+const email = site.email?.trim();
+const mailto = email
+  ? `mailto:${email}?subject=${encodeURIComponent("Project inquiry")}`
+  : undefined;
 
 const services = [
   {
-    title: "Product engineering",
-    body: "End-to-end delivery of web apps and internal tools — from first schema to production deploy.",
+    title: "Websites",
+    body: "Fast, mobile-friendly websites that explain your business and help customers contact you.",
   },
   {
-    title: "Architecture & strategy",
-    body: "A clear technical direction before you commit headcount or a budget. Written down, with tradeoffs named.",
+    title: "Business tools",
+    body: "Custom dashboards, invoice tools, client portals, and systems for managing daily work.",
   },
   {
-    title: "Rescue & stabilization",
-    body: "Inherited a codebase that ships slowly or breaks often? We find the cause, fix it, and leave a maintainable path forward.",
-  },
-  {
-    title: "AI integration",
-    body: "Practical automation and LLM features that fit your workflow, evaluated against real failure modes.",
-  },
-];
-
-const steps = [
-  {
-    label: "01",
-    title: "Get the view",
-    body: "A short audit of your product, codebase, and constraints. We tell you what we see — including what not to build.",
-  },
-  {
-    label: "02",
-    title: "Set the scope",
-    body: "A fixed, written plan with milestones, a working demo cadence, and an honest estimate range.",
-  },
-  {
-    label: "03",
-    title: "Build in the open",
-    body: "Weekly demos, shared repositories, and decisions recorded as they happen. No black boxes.",
-  },
-  {
-    label: "04",
-    title: "Hand off clean",
-    body: "Documentation, tests, and a deploy pipeline your team can run without us.",
+    title: "Integrations and automation",
+    body: "Connect existing tools and reduce repetitive data entry and reporting.",
   },
 ];
 ---
 
 <Layout
-  title="Good View Software — independent software consulting"
-  description="Good View Software is an independent consultancy building, rescuing, and clarifying web software."
+  title={`${site.name} · Custom websites and software`}
+  description="Independent software developer in Bakersfield, California, building practical websites, dashboards, and custom tools for small businesses and nonprofits."
 >
-  <header class="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-    <a href="/" class="flex items-center gap-3">
-      <svg viewBox="0 0 32 32" class="h-8 w-8" aria-hidden="true">
-        <rect width="32" height="32" rx="8" fill="#0d6b5f"></rect>
-        <path d="M8 16c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"></path>
-        <circle cx="16" cy="16" r="3" fill="#fff"></circle>
-      </svg>
-      <span class="text-[15px] font-semibold tracking-tight">Good View Software</span>
-    </a>
-    <nav class="hidden items-center gap-8 text-sm text-ink-700 sm:flex">
-      <a href="#services" class="transition-colors hover:text-ink-950">Services</a>
-      <a href="#approach" class="transition-colors hover:text-ink-950">Approach</a>
-      <a
-        href="mailto:hello@goodviewsoftware.com"
-        class="rounded-full bg-ink-950 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
-      >
-        Get in touch
+  <header class="border-b border-line">
+    <div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-5 sm:px-8">
+      <a href="/" class="whitespace-nowrap text-sm font-semibold tracking-tight sm:text-base">
+        {site.name}
       </a>
-    </nav>
+      <nav aria-label="Main" class="flex items-center gap-x-4 text-[13px] text-ink-700 sm:gap-x-7 sm:text-sm">
+        <a href="#services" class="hover:text-ink-950 hover:underline underline-offset-4">Services</a>
+        <a href="#about" class="hover:text-ink-950 hover:underline underline-offset-4">About</a>
+        <a href="#contact" class="hover:text-ink-950 hover:underline underline-offset-4">Contact</a>
+      </nav>
+    </div>
   </header>
 
-  <main>
-    <section class="mx-auto grid max-w-6xl gap-14 px-6 pb-24 pt-16 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:pb-32 lg:pt-24">
-      <div>
-        <p class="text-xs font-medium uppercase tracking-[0.18em] text-brand-700">
-          Independent software consultancy
-        </p>
-        <h1 class="mt-5 font-display text-6xl leading-[0.95] tracking-tight sm:text-7xl">
-          Software,<br />seen clearly.
-        </h1>
-        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-700">
-          We help teams build, rescue, and ship web software. Small engagements,
-          direct communication, and code you fully own at the end.
-        </p>
-        <div class="mt-9 flex flex-wrap items-center gap-4">
-          <a
-            href="mailto:hello@goodviewsoftware.com"
-            class="rounded-full bg-brand-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-700"
-          >
-            Start a conversation
-          </a>
-          <a
-            href="#services"
-            class="rounded-full border border-mist-200 px-6 py-3 text-sm font-medium text-ink-950 transition-colors hover:border-ink-950"
-          >
-            What we do
-          </a>
-        </div>
-      </div>
-
-      <aside class="rounded-2xl border border-mist-200 bg-mist-50 p-8">
-        <p class="text-xs font-medium uppercase tracking-[0.18em] text-ink-700">How we work</p>
-        <ul class="mt-5 space-y-4 text-[15px] leading-relaxed text-ink-700">
-          <li class="flex gap-3">
-            <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600"></span>
-            Fixed scope and price before work starts.
-          </li>
-          <li class="flex gap-3">
-            <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600"></span>
-            A working demo every week, not a status report.
-          </li>
-          <li class="flex gap-3">
-            <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600"></span>
-            Your repository, your infrastructure, your code.
-          </li>
-          <li class="flex gap-3">
-            <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600"></span>
-            One senior engineer accountable for the outcome.
-          </li>
-        </ul>
-      </aside>
+  <main id="main">
+    <section class="mx-auto max-w-5xl px-5 pb-16 pt-16 sm:px-8 sm:pb-24 sm:pt-28">
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-brand">
+        Independent software developer
+      </p>
+      <h1 class="mt-6 max-w-4xl font-display text-5xl leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
+        Custom websites and software for your business.
+      </h1>
+      <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-700">
+        I help businesses and nonprofits replace manual work with practical websites, dashboards, and custom tools. Based in Bakersfield, California.
+      </p>
+      <a
+        href="#contact"
+        class="mt-10 inline-flex items-center justify-center rounded-full bg-brand px-7 py-3.5 text-sm font-medium text-white hover:bg-brand-dark"
+      >
+        Discuss your project
+      </a>
     </section>
 
-    <section id="services" class="border-t border-mist-200 bg-mist-50">
-      <div class="mx-auto max-w-6xl px-6 py-24">
-        <div class="max-w-2xl">
-          <p class="text-xs font-medium uppercase tracking-[0.18em] text-brand-700">Services</p>
-          <h2 class="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
-            The work we take on
-          </h2>
-          <p class="mt-5 text-lg leading-relaxed text-ink-700">
-            Most engagements are four to twelve weeks. Every one starts with an
-            audit, so the recommendation fits the actual problem.
-          </p>
-        </div>
-        <div class="mt-14 grid gap-px overflow-hidden rounded-2xl border border-mist-200 bg-mist-200 sm:grid-cols-2">
+    <section id="services" class="border-t border-line">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-24">
+        <h2 class="font-display text-4xl tracking-tight sm:text-5xl">What I build</h2>
+        <div class="mt-12 grid gap-10 sm:grid-cols-3 sm:gap-8">
           {
             services.map((service) => (
-              <article class="bg-white p-8">
-                <h3 class="text-lg font-semibold tracking-tight">{service.title}</h3>
+              <article class="border-t border-line pt-6">
+                <h3 class="text-base font-semibold tracking-tight">{service.title}</h3>
                 <p class="mt-3 text-[15px] leading-relaxed text-ink-700">{service.body}</p>
               </article>
             ))
           }
         </div>
+
+        <p class="mt-14 max-w-2xl border-l-2 border-brand pl-5 text-[15px] leading-relaxed text-ink-700">
+          <span class="font-semibold text-ink-950">Pricing.</span>{" "}
+          Every project starts with a conversation and a written quote. Scope and pricing are agreed before development begins.
+        </p>
       </div>
     </section>
 
-    <section id="approach" class="border-t border-mist-200">
-      <div class="mx-auto max-w-6xl px-6 py-24">
-        <div class="grid gap-14 lg:grid-cols-[0.8fr_1.2fr]">
-          <div>
-            <p class="text-xs font-medium uppercase tracking-[0.18em] text-brand-700">Approach</p>
-            <h2 class="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
-              Clear from the first week
-            </h2>
-            <p class="mt-5 max-w-md text-lg leading-relaxed text-ink-700">
-              Consulting fails when the work is invisible. Ours is designed so
-              you always know what is being built, what it costs, and what comes
-              next.
-            </p>
-          </div>
-          <ol class="space-y-8">
-            {
-              steps.map((step) => (
-                <li class="flex gap-6 border-t border-mist-200 pt-8">
-                  <span class="font-display text-2xl text-brand-600">{step.label}</span>
-                  <div>
-                    <h3 class="text-lg font-semibold tracking-tight">{step.title}</h3>
-                    <p class="mt-2 text-[15px] leading-relaxed text-ink-700">{step.body}</p>
-                  </div>
-                </li>
-              ))
-            }
-          </ol>
-        </div>
-      </div>
-    </section>
-
-    <section class="border-t border-mist-200 bg-ink-950 text-white">
-      <div class="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-24 lg:flex-row lg:items-end lg:justify-between">
-        <div class="max-w-2xl">
-          <p class="text-xs font-medium uppercase tracking-[0.18em] text-white/60">Next step</p>
-          <h2 class="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
-            Describe the problem.
-            <br />
-            We'll tell you what it takes.
-          </h2>
-          <p class="mt-5 text-lg leading-relaxed text-white/70">
-            A short call, no pitch deck. If we're not the right fit, we'll say so.
+    <section id="about" class="border-t border-line bg-white">
+      <div class="mx-auto grid max-w-5xl gap-8 px-5 py-16 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] sm:gap-16 sm:px-8 sm:py-24">
+        <h2 class="font-display text-4xl tracking-tight sm:text-5xl">About</h2>
+        <div class="max-w-xl space-y-5 text-[16px] leading-relaxed text-ink-700">
+          <p>
+            I'm an independent developer based in Bakersfield. I build websites and business software for small businesses and nonprofits, and I do the work myself.
+          </p>
+          <p>
+            That means you work directly with the person designing, building, and supporting your project. No account managers, no handoffs, and no team you never meet.
+          </p>
+          <p>
+            I care about software that earns its place: it should remove a repetitive task, make information easier to find, or help customers reach you. If it doesn't do one of those things, it probably doesn't need to be built.
           </p>
         </div>
-        <a
-          href="mailto:hello@goodviewsoftware.com"
-          class="inline-flex shrink-0 items-center gap-3 rounded-full bg-white px-6 py-3 text-sm font-medium text-ink-950 transition-colors hover:bg-mist-200"
-        >
-          hello@goodviewsoftware.com
-          <span aria-hidden="true">→</span>
-        </a>
+      </div>
+    </section>
+
+    <section id="contact" class="border-t border-line">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-24">
+        <h2 class="font-display text-4xl tracking-tight sm:text-5xl">Tell me what you need.</h2>
+        <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-700">
+          Describe your business, what you want to build, and what's difficult about your current process. Not sure what you need? That's fine too.
+        </p>
+
+        {
+          email ? (
+            <div class="mt-9">
+              <a
+                href={mailto}
+                class="inline-flex items-center justify-center rounded-full bg-brand px-7 py-3.5 text-sm font-medium text-white hover:bg-brand-dark"
+              >
+                Email about a project
+              </a>
+              <p class="mt-4 text-sm text-ink-500">
+                Or write to <a href={mailto} class="text-ink-700 underline underline-offset-4">{email}</a>.
+              </p>
+            </div>
+          ) : (
+            <p class="mt-9 text-[15px] font-medium text-ink-700">
+              {site.inquiriesNote}
+            </p>
+          )
+        }
       </div>
     </section>
   </main>
 
-  <footer class="border-t border-white/10 bg-ink-950">
-    <div class="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-8 text-sm text-white/50 sm:flex-row sm:items-center sm:justify-between">
-      <p>© {new Date().getFullYear()} Good View Software. All rights reserved.</p>
-      <p>Built with Astro and Tailwind CSS.</p>
+  <footer class="border-t border-line">
+    <div class="mx-auto max-w-5xl space-y-1 px-5 py-8 text-sm text-ink-500 sm:px-8">
+      <p>{site.name} · {site.location}</p>
+      <p>Operated by {site.operator}.</p>
     </div>
   </footer>
 </Layout>
