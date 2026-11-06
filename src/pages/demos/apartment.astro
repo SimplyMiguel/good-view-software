@@ -1,7 +1,9 @@
 ---
 import "../../styles/demo-apartment.css";
-import { items, totalPrice, formatPrice } from "../../demos/apartment/items";
-import { createViewer, type Viewer } from "../../demos/apartment/scene";
+import { formatPrice, initialPlacements, kinds, variantsById } from "../../demos/apartment/catalog";
+
+const startTotal = initialPlacements.reduce((sum, p) => sum + (variantsById.get(p.variantId)?.price ?? 0), 0);
+const groups = [...new Set(kinds.map((k) => k.label))];
 ---
 
 <!doctype html>
@@ -15,78 +17,110 @@ import { createViewer, type Viewer } from "../../demos/apartment/scene";
   <body class="font-apt-sans bg-apt-paper text-apt-ink">
     <div id="stage" class="relative h-dvh w-full overflow-hidden">
       <canvas id="scene" class="absolute inset-0 block h-full w-full"></canvas>
+      <svg data-dims class="pointer-events-none absolute inset-0 z-[5] h-full w-full" aria-hidden="true"></svg>
 
       <header class="pointer-events-none absolute left-0 right-0 top-0 z-10 flex flex-col gap-2.5 p-5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <p class="font-apt-mono text-[10px] uppercase tracking-[0.14em] text-apt-muted">Shoppable room concept</p>
           <h1 class="mt-1.5 whitespace-nowrap text-[24px] leading-none tracking-tight sm:text-[30px]">Studio 01 — 42 m²</h1>
         </div>
-        <div class="flex shrink-0 items-center gap-2">
-          <span class="rounded-full bg-white/70 px-3 py-1.5 text-[13px] tabular-nums backdrop-blur">
-            Shoppable total {formatPrice(totalPrice)}
+        <div class="flex shrink-0 items-center gap-1.5 whitespace-nowrap sm:gap-2">
+          <span class="rounded-full bg-white/70 px-3 py-1.5 text-[12px] tabular-nums backdrop-blur sm:text-[13px]">
+            <span data-count>11</span> items · <span data-total>{formatPrice(startTotal)}</span>
           </span>
-          <button
-            type="button"
-            data-reset
-            class="pointer-events-auto rounded-full border border-apt-line bg-white/70 px-3 py-1.5 font-apt-mono text-[10px] uppercase tracking-[0.12em] backdrop-blur transition-colors hover:bg-white"
-          >
+          <button type="button" data-restore class="pointer-events-auto rounded-full border border-apt-line bg-white/70 px-2.5 py-1.5 font-apt-mono text-[9px] uppercase tracking-[0.1em] backdrop-blur transition-colors hover:bg-white sm:px-3 sm:text-[10px] sm:tracking-[0.12em]">
+            Restore
+          </button>
+          <button type="button" data-reset class="pointer-events-auto rounded-full border border-apt-line bg-white/70 px-2.5 py-1.5 font-apt-mono text-[9px] uppercase tracking-[0.1em] backdrop-blur transition-colors hover:bg-white sm:px-3 sm:text-[10px] sm:tracking-[0.12em]">
             Reset view
           </button>
         </div>
       </header>
 
+      <!-- Left rail: what is in the room -->
       <nav
         aria-label="Items in this room"
-        class="pointer-events-auto absolute bottom-16 left-0 right-0 z-10 overflow-x-auto whitespace-nowrap px-5 pb-2 sm:bottom-auto sm:left-5 sm:top-1/2 sm:right-auto sm:max-h-[70dvh] sm:-translate-y-1/2 sm:overflow-x-visible sm:overflow-y-auto sm:px-0 sm:pb-0"
+        class="pointer-events-auto absolute bottom-16 left-0 right-0 z-10 hidden max-h-[46dvh] overflow-y-auto px-5 sm:bottom-auto sm:left-5 sm:right-auto sm:top-[104px] sm:block sm:max-h-[calc(100dvh-210px)] sm:w-[260px] sm:px-0"
       >
-        <ul class="flex gap-1.5 sm:flex-col sm:gap-0.5">
-          {
-            items.map((item) => (
-              <li class="inline-block sm:block">
-                <button
-                  type="button"
-                  data-item={item.id}
-                  class="flex w-full items-baseline justify-between gap-3 rounded-md border border-transparent px-2.5 py-1.5 text-left text-[12px] transition-colors hover:border-apt-line hover:bg-white/70 focus-visible:border-apt-accent focus-visible:outline-none"
-                >
-                  <span class="whitespace-nowrap">{item.name}</span>
-                  <span class="font-apt-mono text-[11px] tabular-nums text-apt-muted">{formatPrice(item.price)}</span>
-                </button>
-              </li>
-            ))
-          }
-        </ul>
+        <p class="mb-1.5 px-2.5 font-apt-mono text-[10px] uppercase tracking-[0.14em] text-apt-muted">In this room</p>
+        <ul data-list class="flex flex-col gap-0.5"></ul>
       </nav>
+
+      <!-- Right panel: add something -->
+      <aside
+        aria-label="Add to this room"
+        class="pointer-events-auto absolute bottom-4 right-4 z-10 hidden w-[272px] max-h-[calc(100dvh-170px)] overflow-y-auto rounded-xl border border-apt-line bg-white/80 p-3 backdrop-blur-md sm:block"
+      >
+        <p class="mb-2 font-apt-mono text-[10px] uppercase tracking-[0.14em] text-apt-muted">Add to room</p>
+        {
+          groups.map((group) => (
+            <div class="mb-2.5 last:mb-0">
+              <p class="mb-1 text-[10px] uppercase tracking-[0.1em] text-apt-muted/80">{group}</p>
+              <div class="flex flex-wrap gap-1">
+                {kinds
+                  .filter((k) => k.label === group)
+                  .map(({ kind }) => (
+                    <button
+                      type="button"
+                      data-add={kind}
+                      class="rounded-full border border-apt-line bg-white px-2.5 py-1 text-[11px] capitalize transition-colors hover:border-apt-ink hover:bg-apt-ink hover:text-apt-paper"
+                    >
+                      + {kind === "coffee" ? "coffee table" : kind === "counter" ? "kitchen run" : kind === "table" ? "dining table" : kind}
+                    </button>
+                  ))}
+              </div>
+            </div>
+          ))
+        }
+      </aside>
+
+      <!-- Mobile strip: picker of kinds -->
+      <div class="pointer-events-auto absolute bottom-12 left-0 right-0 z-10 flex gap-1.5 overflow-x-auto whitespace-nowrap px-4 pb-1 sm:hidden">
+        {
+          kinds.map(({ kind }) => (
+            <button type="button" data-add={kind} class="shrink-0 rounded-full border border-apt-line bg-white/90 px-3 py-1.5 text-[11px] capitalize">
+              + {kind}
+            </button>
+          ))
+        }
+      </div>
 
       <div
         data-card
         hidden
-        class="pointer-events-auto absolute z-20 w-[236px] rounded-xl border border-apt-line bg-white/90 p-3.5 shadow-[0_8px_30px_rgba(34,32,28,0.14)] backdrop-blur-md"
+        class="pointer-events-auto absolute z-20 w-[264px] rounded-xl border border-apt-line bg-white/92 p-3.5 shadow-[0_8px_30px_rgba(34,32,28,0.14)] backdrop-blur-md"
       >
-        <p data-card-category class="font-apt-mono text-[11px] uppercase tracking-[0.12em] text-apt-muted"></p>
+        <p data-card-category class="font-apt-mono text-[10px] uppercase tracking-[0.12em] text-apt-muted"></p>
         <h2 data-card-name class="mt-1 text-[17px] leading-tight tracking-tight"></h2>
         <p data-card-price class="mt-1 text-[15px] tabular-nums"></p>
+
+        <dl class="mt-2.5 grid grid-cols-3 gap-1.5 text-center">
+          <div class="rounded-md bg-apt-paper px-1 py-1.5"><dt class="font-apt-mono text-[9px] uppercase tracking-[0.1em] text-apt-muted">Width</dt><dd data-card-w class="text-[12px] tabular-nums"></dd></div>
+          <div class="rounded-md bg-apt-paper px-1 py-1.5"><dt class="font-apt-mono text-[9px] uppercase tracking-[0.1em] text-apt-muted">Depth</dt><dd data-card-d class="text-[12px] tabular-nums"></dd></div>
+          <div class="rounded-md bg-apt-paper px-1 py-1.5"><dt class="font-apt-mono text-[9px] uppercase tracking-[0.1em] text-apt-muted">Height</dt><dd data-card-h class="text-[12px] tabular-nums"></dd></div>
+        </dl>
+
         <div class="mt-2.5 flex items-center gap-2">
           <span data-card-swatch class="h-3.5 w-3.5 shrink-0 rounded-full border border-apt-line"></span>
           <span data-card-color class="text-[12px] text-apt-muted"></span>
         </div>
-        <p data-card-note class="mt-2 text-[11px] leading-snug text-apt-muted">
-          Demo content — prices and colours are illustrative.
-        </p>
-        <a
-          href="#"
-          data-demo-link
-          aria-disabled="true"
-          class="mt-3 block rounded-md bg-apt-ink px-3 py-2 text-center text-[11px] uppercase tracking-[0.12em] text-apt-paper"
-        >
-          View on Amazon ↗
-        </a>
-        <p class="mt-1.5 text-[10px] text-apt-muted">Example link — no real product.</p>
+
+        <div data-card-variants hidden class="mt-3 border-t border-apt-line pt-2.5">
+          <p class="mb-1.5 font-apt-mono text-[9px] uppercase tracking-[0.12em] text-apt-muted">Swap style</p>
+          <div data-card-variant-list class="flex flex-wrap gap-1"></div>
+        </div>
+
+        <div data-card-actions hidden class="mt-3 grid grid-cols-2 gap-1.5">
+          <button type="button" data-rotate class="rounded-md border border-apt-line bg-white px-2 py-1.5 text-[11px] uppercase tracking-[0.1em] transition-colors hover:bg-apt-paper">Rotate 90°</button>
+          <button type="button" data-remove class="rounded-md border border-apt-line bg-white px-2 py-1.5 text-[11px] uppercase tracking-[0.1em] text-apt-accent transition-colors hover:bg-apt-accent hover:text-white">Remove</button>
+        </div>
+
+        <a href="#" data-demo-link aria-disabled="true" class="mt-3 block rounded-md bg-apt-ink px-3 py-2 text-center text-[11px] uppercase tracking-[0.12em] text-apt-paper">View on Amazon ↗</a>
+        <p class="mt-1.5 text-[10px] text-apt-muted">Demo content — prices, sizes and links are illustrative. Example link — no real product.</p>
       </div>
 
-      <p
-        class="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap font-apt-mono text-[10px] uppercase tracking-[0.12em] text-apt-muted"
-      >
-        Drag to orbit · Scroll to zoom · Hover an item
+      <p class="pointer-events-none absolute bottom-4 left-5 z-10 hidden whitespace-nowrap font-apt-mono text-[10px] uppercase tracking-[0.12em] text-apt-muted sm:block">
+        Drag a piece to move · Drag empty space to orbit · Scroll to zoom
       </p>
 
       <p data-fallback hidden class="absolute inset-0 grid place-items-center text-center text-[13px] text-apt-muted">
@@ -95,136 +129,16 @@ import { createViewer, type Viewer } from "../../demos/apartment/scene";
     </div>
 
     <script>
-      import { items, formatPrice } from "../../demos/apartment/items";
+      import { formatPrice, formatDims, variantsById, variantsByKind, initialPlacements, kinds, type Placement } from "../../demos/apartment/catalog";
       import { createViewer, type Viewer } from "../../demos/apartment/scene";
 
       const stage = document.getElementById("stage") as HTMLElement;
-      const card = stage.querySelector<HTMLElement>("[data-card]")!;
-      const cardCategory = stage.querySelector<HTMLElement>("[data-card-category]")!;
-      const cardName = stage.querySelector<HTMLElement>("[data-card-name]")!;
-      const cardPrice = stage.querySelector<HTMLElement>("[data-card-price]")!;
-      const cardSwatch = stage.querySelector<HTMLElement>("[data-card-swatch]")!;
-      const cardColor = stage.querySelector<HTMLElement>("[data-card-color]")!;
-      const fallback = stage.querySelector<HTMLElement>("[data-fallback]")!;
-      const railButtons = Array.from(stage.querySelectorAll<HTMLButtonElement>("[data-item]"));
-      const resetButton = stage.querySelector<HTMLButtonElement>("[data-reset]");
-      const demoLink = stage.querySelector<HTMLAnchorElement>("[data-demo-link]");
-
-      const byId = new Map(items.map((item) => [item.id, item]));
-      let pinned: string | null = null;
-      let lastPoint: { x: number; y: number } = { x: 0, y: 0 };
-
-      const place = (x: number, y: number) => {
-        const stageRect = stage.getBoundingClientRect();
-        const w = card.offsetWidth;
-        const h = card.offsetHeight;
-        if (stageRect.width < 640) {
-          card.style.left = "16px";
-          card.style.top = `${Math.max(8, stageRect.height - h - 120)}px`;
-          return;
-        }
-        const left = Math.min(Math.max(x + 16, 8), Math.max(8, stageRect.width - w - 8));
-        const top = Math.min(Math.max(y + 16, 8), Math.max(8, stageRect.height - h - 8));
-        card.style.left = `${left}px`;
-        card.style.top = `${top}px`;
-      };
-
-      const fillCard = (id: string) => {
-        const item = byId.get(id);
-        if (!item || !card) return;
-        cardCategory!.textContent = item.category;
-        cardName!.textContent = item.name;
-        cardPrice!.textContent = formatPrice(item.price);
-        cardSwatch!.style.background = item.colorHex;
-        cardColor!.textContent = item.color;
-        card.hidden = false;
-      };
-
-      const boot = (viewer: Viewer) => {
-        viewer.setHoverListener(({ id, x, y }) => {
-          viewer.setHighlight(id);
-          if (pinned) return;
-          if (!id || !byId.has(id)) {
-            card.hidden = true;
-            return;
-          }
-          lastPoint = { x, y };
-          fillCard(id);
-          place(x, y);
-        });
-
-        viewer.setSelectListener(({ id, x, y }) => {
-          pinned = id && byId.has(id) ? id : null;
-          if (!pinned) {
-            card.hidden = true;
-            card.removeAttribute("data-pinned");
-            return;
-          }
-          lastPoint = { x, y };
-          fillCard(pinned);
-          place(x, y);
-          card.setAttribute("data-pinned", "");
-        });
-
-        for (const button of railButtons) {
-          const id = button.dataset.item!;
-          const show = () => {
-            viewer.setHighlight(id);
-            if (pinned) return;
-            const rect = button.getBoundingClientRect();
-            const stageRect = stage.getBoundingClientRect();
-            lastPoint = { x: rect.right - stageRect.left, y: rect.top - stageRect.top };
-            fillCard(id);
-            place(lastPoint.x, lastPoint.y);
-          };
-          button.addEventListener("pointerenter", show);
-          button.addEventListener("focus", show);
-          button.addEventListener("click", () => {
-            pinned = id;
-            viewer.setHighlight(id);
-            fillCard(id);
-            place(lastPoint.x, lastPoint.y);
-            card.setAttribute("data-pinned", "");
-          });
-        }
-
-        resetButton?.addEventListener("click", () => {
-          viewer.resetView();
-          pinned = null;
-          card.hidden = true;
-          card.removeAttribute("data-pinned");
-        });
-
-        demoLink?.addEventListener("click", (event) => event.preventDefault());
-
-        document.addEventListener("keydown", (event) => {
-          if (event.key !== "Escape") return;
-          if (pinned) {
-            pinned = null;
-            card.hidden = true;
-            card.removeAttribute("data-pinned");
-            viewer.setHighlight(null);
-            event.preventDefault();
-            return;
-          }
-          if (window.parent !== window) {
-            window.parent.postMessage({ type: "preview-close" }, window.location.origin);
-          }
-        });
-
-        window.addEventListener("resize", () => {
-          if (card.hidden || !pinned) return;
-          place(lastPoint.x, lastPoint.y);
-        });
-
-        (window as any).__aptViewer = {
-          get ready() {
-            return true;
-          },
-          itemCount: viewer.itemCount,
-          screenPoint: (id: string) => viewer.screenPoint(id),
-        };
-      };
+      const $ = <T extends HTMLElement>(sel: string) => stage.querySelector<T>(sel)!;
+      const card = $("[data-card]");
+      const dims = stage.querySelector<SVGSVGElement>("[data-dims]")!;
+      const list = $("[data-list]");
+      const fallback = $("[data-fallback]");
+      const demoLink = $("[data-demo-link]");
 
       let viewer: Viewer | null = null;
       try {
@@ -232,7 +146,338 @@ import { createViewer, type Viewer } from "../../demos/apartment/scene";
       } catch {
         fallback.hidden = false;
       }
-      if (viewer) boot(viewer);
+
+      if (viewer) {
+        const v = viewer;
+        let placements: Placement[] = initialPlacements.map((p) => ({ ...p }));
+        let pinned: string | null = null;
+        let focus: string | null = null;
+        let seq = 0;
+
+        const kindOf = (p: Placement) => variantsById.get(p.variantId)!.kind;
+        const labelFor = (kind: string) => kinds.find((k) => k.kind === kind)?.label ?? "";
+
+        const refreshHud = () => {
+          const total = placements.reduce((sum, p) => sum + (variantsById.get(p.variantId)?.price ?? 0), 0);
+          $("[data-total]").textContent = formatPrice(total);
+          $("[data-count]").textContent = String(placements.length);
+        };
+
+        const renderList = () => {
+          list.replaceChildren(
+            ...placements.map((p) => {
+              const variant = variantsById.get(p.variantId)!;
+              const li = document.createElement("li");
+              const button = document.createElement("button");
+              button.type = "button";
+              button.dataset.item = p.id;
+              button.className =
+                "flex w-full items-baseline justify-between gap-3 rounded-md border border-transparent px-2.5 py-1.5 text-left text-[12px] transition-colors hover:border-apt-line hover:bg-white/70 focus-visible:border-apt-accent focus-visible:outline-none data-[on=true]:border-apt-line data-[on=true]:bg-white";
+              button.dataset.on = String(p.id === pinned);
+              const name = document.createElement("span");
+              name.className = "truncate";
+              name.textContent = variant.name;
+              const price = document.createElement("span");
+              price.className = "font-apt-mono text-[11px] tabular-nums text-apt-muted";
+              price.textContent = formatPrice(variant.price);
+              button.append(name, price);
+              button.addEventListener("pointerenter", () => show(p.id, "list"));
+              button.addEventListener("pointerleave", () => {
+                if (!pinned) hide();
+              });
+              button.addEventListener("click", () => pin(p.id));
+              li.append(button);
+              return li;
+            }),
+          );
+        };
+
+        const sync = () => {
+          v.setPlacements(placements);
+          refreshHud();
+          renderList();
+        };
+
+        // ── Dimension lines ────────────────────────────────────────────────
+        const NS = "http://www.w3.org/2000/svg";
+        const line = (a: { x: number; y: number }, b: { x: number; y: number }, label: string) => {
+          const g = document.createElementNS(NS, "g");
+          const path = document.createElementNS(NS, "path");
+          path.setAttribute("d", `M${a.x},${a.y}L${b.x},${b.y}`);
+          path.setAttribute("stroke", "#22201c");
+          path.setAttribute("stroke-width", "1");
+          path.setAttribute("stroke-opacity", "0.55");
+          path.setAttribute("fill", "none");
+          g.append(path);
+          for (const end of [a, b]) {
+            const tick = document.createElementNS(NS, "circle");
+            tick.setAttribute("cx", String(end.x));
+            tick.setAttribute("cy", String(end.y));
+            tick.setAttribute("r", "2");
+            tick.setAttribute("fill", "#22201c");
+            tick.setAttribute("fill-opacity", "0.6");
+            g.append(tick);
+          }
+          const text = document.createElementNS(NS, "text");
+          const mx = (a.x + b.x) / 2;
+          const my = (a.y + b.y) / 2;
+          text.setAttribute("x", String(mx));
+          text.setAttribute("y", String(my - 6));
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("font-size", "10");
+          text.setAttribute("font-family", "ui-monospace, Menlo, monospace");
+          text.setAttribute("fill", "#22201c");
+          text.setAttribute("paint-order", "stroke");
+          text.setAttribute("stroke", "#f5f3ee");
+          text.setAttribute("stroke-width", "3");
+          text.textContent = label;
+          g.append(text);
+          return g;
+        };
+
+        const drawDims = () => {
+          if (!focus) {
+            dims.replaceChildren();
+            return;
+          }
+          const a = v.anchors(focus);
+          if (!a) {
+            dims.replaceChildren();
+            return;
+          }
+          dims.replaceChildren(line(a.width.a, a.width.b, a.width.label), line(a.depth.a, a.depth.b, a.depth.label), line(a.height.a, a.height.b, a.height.label));
+        };
+        v.setFrameListener(drawDims);
+
+        // ── Card ───────────────────────────────────────────────────────────
+        const place = (x: number, y: number) => {
+          const rect = stage.getBoundingClientRect();
+          const w = card.offsetWidth;
+          const h = card.offsetHeight;
+          if (rect.width < 640) {
+            card.style.left = "16px";
+            card.style.top = `${Math.max(8, rect.height - h - 150)}px`;
+            return;
+          }
+          card.style.left = `${Math.min(Math.max(x + 18, 8), Math.max(8, rect.width - w - 300))}px`;
+          card.style.top = `${Math.min(Math.max(y + 18, 8), Math.max(8, rect.height - h - 8))}px`;
+        };
+
+        let lastPoint = { x: 0, y: 0 };
+
+        const fill = (id: string) => {
+          const placement = placements.find((p) => p.id === id);
+          const variant = placement && variantsById.get(placement.variantId);
+          if (!placement || !variant) return false;
+          $("[data-card-category]").textContent = labelFor(variant.kind);
+          $("[data-card-name]").textContent = variant.name;
+          $("[data-card-price]").textContent = formatPrice(variant.price);
+          $("[data-card-w]").textContent = `${variant.w} cm`;
+          $("[data-card-d]").textContent = `${variant.d} cm`;
+          $("[data-card-h]").textContent = `${variant.h} cm`;
+          $("[data-card-swatch]").style.background = variant.colorHex;
+          $("[data-card-color]").textContent = `${variant.color} · ${formatDims(variant)}`;
+
+          const siblings = variantsByKind.get(variant.kind) ?? [];
+          const swapBox = $("[data-card-variants]");
+          const swapList = $("[data-card-variant-list]");
+          swapBox.hidden = siblings.length < 2 || pinned !== id;
+          swapList.replaceChildren(
+            ...siblings.map((s) => {
+              const b = document.createElement("button");
+              b.type = "button";
+              b.className =
+                "rounded-full border px-2 py-1 text-[10px] transition-colors " +
+                (s.id === variant.id ? "border-apt-ink bg-apt-ink text-apt-paper" : "border-apt-line bg-white hover:border-apt-ink");
+              b.textContent = `${s.name.replace(/,.*/, "")} · ${formatPrice(s.price)}`;
+              b.addEventListener("click", () => {
+                const next = placements.map((p) => (p.id === id ? { ...p, variantId: s.id } : p));
+                placements = next;
+                sync();
+                focus = id;
+                fill(id);
+                v.setHighlight(id);
+              });
+              return b;
+            }),
+          );
+          $("[data-card-actions]").hidden = pinned !== id;
+          card.hidden = false;
+          return true;
+        };
+
+        const show = (id: string, from: "scene" | "list") => {
+          if (pinned && pinned !== id) return;
+          focus = id;
+          v.setHighlight(id);
+          if (!fill(id)) return;
+          if (from === "list") {
+            lastPoint = { x: 284, y: 120 };
+            place(lastPoint.x, lastPoint.y);
+          }
+          drawDims();
+        };
+
+        const hide = () => {
+          if (pinned) return;
+          focus = null;
+          card.hidden = true;
+          v.setHighlight(null);
+          drawDims();
+        };
+
+        const unpin = () => {
+          pinned = null;
+          card.removeAttribute("data-pinned");
+          hide();
+          renderList();
+        };
+
+        const pin = (id: string) => {
+          pinned = id;
+          focus = id;
+          card.setAttribute("data-pinned", "");
+          v.setHighlight(id);
+          fill(id);
+          place(lastPoint.x, lastPoint.y);
+          renderList();
+          drawDims();
+        };
+
+        v.setHoverListener(({ id, x, y }) => {
+          if (pinned) return;
+          if (!id) return hide();
+          lastPoint = { x, y };
+          show(id, "scene");
+          place(x, y);
+        });
+
+        v.setSelectListener(({ id, x, y }) => {
+          lastPoint = { x, y };
+          if (!id) return unpin();
+          pin(id);
+        });
+
+        v.setMoveListener((event) => {
+          if (!event) return;
+          const index = placements.findIndex((p) => p.id === event.placement.id);
+          if (index >= 0) placements[index] = event.placement;
+          if (!pinned) pin(event.placement.id);
+          drawDims();
+        });
+
+        // ── Add / remove / rotate ──────────────────────────────────────────
+        const spawn = (kind: string) => {
+          const options = variantsByKind.get(kind as never) ?? [];
+          const variant = options[0];
+          if (!variant) return;
+          seq += 1;
+          const id = `${kind}-${seq}`;
+          const spot = findOpenSpot(variant.w / 100, variant.d / 100);
+          placements = [...placements, { id, variantId: variant.id, x: spot.x, z: spot.z, rotationY: kind === "sofa" ? Math.PI : 0 }];
+          sync();
+          lastPoint = { x: stage.clientWidth * 0.5, y: stage.clientHeight * 0.45 };
+          pin(id);
+        };
+
+        // Picks the open floor cell nearest the room centre. The grid is coarse on
+        // purpose: this runs on click, not per frame.
+        const findOpenSpot = (w: number, d: number) => {
+          let best = { x: 0, z: 0, score: Number.POSITIVE_INFINITY };
+          for (let x = -2.6; x <= 2.6; x += 0.2) {
+            for (let z = -2.1; z <= 2.1; z += 0.2) {
+              const clash = placements.some((p) => {
+                const pv = variantsById.get(p.variantId)!;
+                if (pv.kind === "rug") return false;
+                const hw = Math.abs(Math.sin(p.rotationY ?? 0)) > 0.7 ? pv.d / 200 : pv.w / 200;
+                const hd = Math.abs(Math.sin(p.rotationY ?? 0)) > 0.7 ? pv.w / 200 : pv.d / 200;
+                return Math.abs(x - p.x) < hw + w / 2 + 0.05 && Math.abs(z - p.z) < hd + d / 2 + 0.05;
+              });
+              if (clash) continue;
+              const inside = Math.abs(x) + w / 2 <= 3.15 && Math.abs(z) + d / 2 <= 2.75;
+              if (!inside) continue;
+              const score = x * x + z * z;
+              if (score < best.score) best = { x, z, score };
+            }
+          }
+          return Number.isFinite(best.score) ? best : { x: 0, z: 0, score: 0 };
+        };
+
+        const remove = (id: string) => {
+          placements = placements.filter((p) => p.id !== id);
+          pinned = null;
+          focus = null;
+          card.hidden = true;
+          card.removeAttribute("data-pinned");
+          sync();
+          drawDims();
+        };
+
+        const rotate = (id: string) => {
+          placements = placements.map((p) => (p.id === id ? { ...p, rotationY: ((p.rotationY ?? 0) + Math.PI / 2) % (Math.PI * 2) } : p));
+          sync();
+          pin(id);
+        };
+
+        stage.querySelectorAll<HTMLElement>("[data-add]").forEach((button) => {
+          button.addEventListener("click", () => spawn(button.dataset.add!));
+        });
+        $("[data-remove]").addEventListener("click", () => pinned && remove(pinned));
+        $("[data-rotate]").addEventListener("click", () => pinned && rotate(pinned));
+        $("[data-restore]").addEventListener("click", () => {
+          placements = initialPlacements.map((p) => ({ ...p }));
+          pinned = null;
+          focus = null;
+          card.hidden = true;
+          sync();
+          drawDims();
+        });
+        $("[data-reset]").addEventListener("click", () => {
+          v.resetView();
+          unpin();
+        });
+        demoLink.addEventListener("click", (event) => event.preventDefault());
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            if (pinned) {
+              unpin();
+              event.preventDefault();
+              return;
+            }
+            if (window.parent !== window) {
+              window.parent.postMessage({ type: "preview-close" }, window.location.origin);
+            }
+            return;
+          }
+          if (!pinned) return;
+          if (event.key === "Delete" || event.key === "Backspace") {
+            event.preventDefault();
+            remove(pinned);
+          } else if (event.key.toLowerCase() === "r") {
+            event.preventDefault();
+            rotate(pinned);
+          }
+        });
+
+        window.addEventListener("resize", () => {
+          if (!card.hidden && pinned) place(lastPoint.x, lastPoint.y);
+        });
+
+        sync();
+
+        (window as any).__aptViewer = {
+          get ready() {
+            return true;
+          },
+          get itemCount() {
+            return placements.length;
+          },
+          placements: () => placements.map((p) => ({ ...p })),
+          screenPoint: (id: string) => v.centre(id),
+          floorPoint: (x: number, y: number) => v.floorPointAt(x, y),
+        };
+      }
     </script>
   </body>
 </html>
