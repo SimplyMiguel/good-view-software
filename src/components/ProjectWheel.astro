@@ -1,5 +1,6 @@
 ---
 import PreviewModal from "./PreviewModal.astro";
+import PhoneFrame from "./PhoneFrame.astro";
 
 const projects = [
   {
@@ -165,11 +166,10 @@ const projects = [
           </div>
 
             <div data-project-preview="mobile" class="flex h-full items-center justify-center" hidden>
-              <div class="flex h-[94%] aspect-[9/18] flex-col overflow-hidden rounded-[20px] border border-white/25 bg-paper p-1.5">
-                <div class="flex h-full flex-col overflow-hidden rounded-[14px] border border-line">
-                  <div class="flex items-center justify-between px-3 pb-2 pt-2.5">
+              <PhoneFrame width="150px" label="Valley Fitness app: today's classes, with Strength at 6am, Mobility at 9am and Spin at 12pm">
+                <div class="flex h-full flex-col">
+                  <div class="flex items-center justify-between px-3 pb-1.5 pt-4">
                     <span class="font-mono text-[5px] uppercase tracking-[0.14em] text-ink-500">9:41</span>
-                    <span class="h-1 w-8 rounded-full bg-ink-950/20"></span>
                     <span class="font-mono text-[5px] text-ink-500">100%</span>
                   </div>
                   <div class="flex-1 px-3">
@@ -195,7 +195,7 @@ const projects = [
                     <span class="text-ink-950">Today</span><span>Schedule</span><span>Account</span>
                   </div>
                 </div>
-              </div>
+              </PhoneFrame>
             </div>
         </div>
         <p class="mt-3 max-w-[56ch] text-[11px] leading-[1.5] text-ink-500">
