@@ -15,6 +15,45 @@ html {
   background: var(--color-etx-cream);
   color: var(--color-etx-ink);
   scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* Native scrollbar hidden; replaced by the overlay thumb (see restaurant.astro). */
+html {
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar {
+  display: none;
+}
+
+.etx-scroll {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  z-index: 50;
+  background: linear-gradient(to left, rgb(29 26 22 / 0.12), transparent);
+  touch-action: none;
+}
+.etx-scroll:hover .etx-scroll-thumb,
+.etx-scroll[data-active] .etx-scroll-thumb {
+  opacity: 1;
+}
+.etx-scroll[hidden] {
+  display: none;
+}
+.etx-scroll-thumb {
+  position: absolute;
+  right: 3px;
+  width: 8px;
+  min-height: 40px;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, var(--color-etx-terracotta), var(--color-etx-green));
+  box-shadow: 0 0 10px 2px rgb(165 69 42 / 0.35);
+  opacity: 0.8;
+  transition: opacity 0.2s;
+  cursor: grab;
 }
 
 @keyframes etx-marquee {

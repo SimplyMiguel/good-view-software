@@ -115,7 +115,7 @@ const agenda = [
       </section>
 
       <!-- Script tagline -->
-      <section class="py-16 text-center">
+      <section class="overflow-hidden py-16 text-center">
         <p class="-rotate-3 font-etx-script font-medium leading-tight text-etx-terracotta" style="font-size: clamp(2rem, 5vw, 3.5rem)">
           Hungry for pintxos?<br />Pull up a stool ✦
         </p>
@@ -183,6 +183,8 @@ const agenda = [
       <p class={`${wrap} pb-8 text-[11px]`}>Concept site by Good View Software. Etxea is a fictional restaurant.</p>
     </footer>
 
+    <div class="etx-scroll" data-scroll hidden aria-hidden="true"><div class="etx-scroll-thumb" data-scroll-thumb></div></div>
+
     <script>
       const tabs = Array.from(document.querySelectorAll<HTMLElement>('[role="tab"]'));
       const panels = Array.from(document.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
@@ -203,6 +205,43 @@ const agenda = [
           else if (e.key === "ArrowLeft") select((i - 1 + tabs.length) % tabs.length);
         });
       });
+
+      // Overlay scrollbar: no gutter, transparent track, gradient thumb.
+      const track = document.querySelector<HTMLElement>("[data-scroll]");
+      const thumb = document.querySelector<HTMLElement>("[data-scroll-thumb]");
+      const root = document.documentElement;
+      if (track && thumb) {
+        const sync = () => {
+          const max = root.scrollHeight - root.clientHeight;
+          track.hidden = max <= 0;
+          if (max <= 0) return;
+          const h = Math.max(40, (root.clientHeight / root.scrollHeight) * root.clientHeight);
+          thumb.style.height = `${h}px`;
+          thumb.style.top = `${(root.scrollTop / max) * (root.clientHeight - h)}px`;
+        };
+        const scrollToY = (y: number, grab: number) => {
+          const h = thumb.offsetHeight;
+          const ratio = Math.min(1, Math.max(0, (y - grab) / (root.clientHeight - h)));
+          root.scrollTo({ top: ratio * (root.scrollHeight - root.clientHeight), behavior: "instant" });
+        };
+        let grab = 0;
+        track.addEventListener("pointerdown", (e) => {
+          track.setPointerCapture(e.pointerId);
+          track.dataset.active = "";
+          grab = e.target === thumb ? e.clientY - thumb.getBoundingClientRect().top : thumb.offsetHeight / 2;
+          scrollToY(e.clientY, grab);
+        });
+        track.addEventListener("pointermove", (e) => {
+          if (track.hasPointerCapture(e.pointerId)) scrollToY(e.clientY, grab);
+        });
+        const release = () => delete track.dataset.active;
+        track.addEventListener("pointerup", release);
+        track.addEventListener("pointercancel", release);
+        addEventListener("scroll", sync, { passive: true });
+        addEventListener("resize", sync);
+        new ResizeObserver(sync).observe(document.body);
+        sync();
+      }
 
       // Inside the preview iframe, Esc never reaches the parent's <dialog>; ask it to close.
       document.addEventListener("keydown", (e) => {
