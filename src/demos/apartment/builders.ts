@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
-import type { Variant } from "./catalog";
+import { INCH, type Variant } from "./catalog";
 import { mottle, weave, woodGrain } from "./textures";
 
 export interface BuiltPiece {
@@ -10,7 +10,7 @@ export interface BuiltPiece {
 
 type Finish = "wood" | "fabric" | "paint" | "metal" | "steel" | "stone" | "dark" | "plain";
 
-const m = (cm: number) => cm / 100;
+const m = (inches: number) => inches * INCH;
 
 /** One fresh material per mesh, so highlighting one piece never tints another. */
 function material(finish: Finish, color: string): THREE.MeshStandardMaterial {
@@ -79,20 +79,16 @@ export function buildPiece(variant: Variant): BuiltPiece {
       put(slab(W, frameH, D, 0.03)).position.y = frameH / 2;
       put(slab(W - 0.05, 0.22, D - 0.06, 0.07), "fabric", "#f1ece0").position.y = frameH + 0.11;
       put(slab(W - 0.03, 0.09, D * 0.62, 0.05), "fabric", "#c9b9a1").position.set(0, frameH + 0.255, D * 0.16);
-      for (const sx of [-1, 1]) {
-        put(slab(W * 0.4, 0.13, D * 0.17, 0.06), "fabric", "#f7f3e9").position.set(sx * W * 0.23, frameH + 0.29, -D / 2 + D * 0.15);
+      // Twin and Twin XL take one pillow; wider beds take two.
+      const pillows = variant.w < 48 ? 1 : 2;
+      const pillowW = pillows === 1 ? W * 0.62 : W * 0.4;
+      for (let i = 0; i < pillows; i += 1) {
+        const x = pillows === 1 ? 0 : (i === 0 ? -1 : 1) * W * 0.23;
+        put(slab(pillowW, 0.13, D * 0.17, 0.06), "fabric", "#f7f3e9").position.set(x, frameH + 0.29, -D / 2 + D * 0.15);
       }
-      const headH = variant.id === "bed-storage" ? 0.98 : 0.95;
-      put(slab(W, headH - 0.1, 0.07, 0.03)).position.set(0, 0.1 + (headH - 0.1) / 2, -D / 2 + 0.035);
-      if (variant.id === "bed-storage") {
-        for (const sx of [-1, 1]) {
-          put(slab(W * 0.46, 0.17, 0.03, 0.01), "wood", "#8a6a45").position.set(sx * W * 0.25, 0.13, D / 2 + 0.012);
-          put(slab(0.14, 0.012, 0.014, 0.005), "metal", "#b08a4a").position.set(sx * W * 0.25, 0.17, D / 2 + 0.03);
-        }
-      } else {
-        for (const sx of [-1, 1]) {
-          for (const sz of [-1, 1]) put(post(0.03, 0.1)).position.set(sx * (W / 2 - 0.08), 0.05, sz * (D / 2 - 0.12));
-        }
+      put(slab(W, 0.85, 0.07, 0.03)).position.set(0, 0.1 + 0.425, -D / 2 + 0.035);
+      for (const sx of [-1, 1]) {
+        for (const sz of [-1, 1]) put(post(0.03, 0.1)).position.set(sx * (W / 2 - 0.08), 0.05, sz * (D / 2 - 0.12));
       }
       break;
     }
@@ -125,7 +121,7 @@ export function buildPiece(variant: Variant): BuiltPiece {
       const armW = 0.16;
       const seatH = 0.3;
       const innerW = W - armW * 2;
-      const cushions = variant.w > 210 ? 3 : 2;
+      const cushions = variant.w > 84 ? 3 : 2;
       put(slab(W, seatH, D, 0.06), "fabric").position.y = up + seatH / 2;
       for (let i = 0; i < cushions; i += 1) {
         const x = -innerW / 2 + (innerW / cushions) * (i + 0.5);
@@ -196,7 +192,7 @@ export function buildPiece(variant: Variant): BuiltPiece {
     case "shelf": {
       const t = 0.028;
       for (const sx of [-1, 1]) put(slab(t, H, D, 0.008)).position.set(sx * (W / 2 - t / 2), H / 2, 0);
-      const tiers = variant.h > 120 ? 5 : 3;
+      const tiers = variant.h > 48 ? 5 : 3;
       for (let i = 0; i < tiers; i += 1) {
         const y = 0.013 + ((H - 0.026) / (tiers - 1)) * i;
         put(slab(W - t * 2, 0.026, D, 0.006)).position.set(0, y, 0);
@@ -216,8 +212,11 @@ export function buildPiece(variant: Variant): BuiltPiece {
     }
 
     case "lamp": {
-      put(post(0.16, 0.025, 28), "metal", tone).position.y = 0.013;
-      if (variant.id === "lamp-globe") {
+      // The arched lamp leans toward +z, so its base sits at the back of its footprint.
+      const arch = variant.id === "lamp-arch";
+      const baseZ = arch ? -D / 2 + 0.17 : 0;
+      put(post(0.16, 0.025, 28), "metal", tone).position.set(0, 0.013, baseZ);
+      if (!arch) {
         put(post(0.018, H - 0.22, 10), "metal", tone).position.y = (H - 0.22) / 2;
         const globe = put(new THREE.Mesh(new THREE.SphereGeometry(0.13, 20, 14)), "plain", "#f6e7c4", false);
         globe.position.y = H - 0.13;
@@ -225,14 +224,15 @@ export function buildPiece(variant: Variant): BuiltPiece {
         mat.emissive = new THREE.Color("#ffd9a0");
         mat.emissiveIntensity = 0.55;
       } else {
+        const reach = D - 0.34;
         const curve = new THREE.QuadraticBezierCurve3(
-          new THREE.Vector3(0, 0.02, 0),
-          new THREE.Vector3(0, H * 1.02, 0),
-          new THREE.Vector3(0.0, H * 0.96, 0.4),
+          new THREE.Vector3(0, 0.02, baseZ),
+          new THREE.Vector3(0, H * 1.02, baseZ),
+          new THREE.Vector3(0, H * 0.96, baseZ + reach),
         );
         put(new THREE.Mesh(new THREE.TubeGeometry(curve, 28, 0.017, 8, false)), "metal", tone);
         const shade = put(new THREE.Mesh(new THREE.ConeGeometry(0.17, 0.2, 22, 1, true)), "plain", "#f1e7d3", false);
-        shade.position.set(0, H * 0.96 - 0.08, 0.4);
+        shade.position.set(0, H * 0.96 - 0.08, baseZ + reach);
         const mat = shade.material as THREE.MeshStandardMaterial;
         mat.side = THREE.DoubleSide;
         mat.emissive = new THREE.Color("#ffd9a0");
@@ -245,9 +245,9 @@ export function buildPiece(variant: Variant): BuiltPiece {
       put(post(W * 0.36, 0.32, 22), "paint", "#a8a094").position.y = 0.16;
       put(post(W * 0.33, 0.02, 20), "plain", "#3d3227").position.y = 0.31;
       put(post(0.02, H * 0.5, 8), "wood", "#6b4b32").position.y = H * 0.27;
-      const count = variant.h > 100 ? 5 : 3;
+      const count = variant.h > 40 ? 5 : 3;
       for (let i = 0; i < count; i += 1) {
-        const r = (variant.h > 100 ? 0.27 : 0.21) * (1 - i * 0.1);
+        const r = (variant.h > 40 ? 0.27 : 0.21) * (1 - i * 0.1);
         const blob = put(new THREE.Mesh(new THREE.IcosahedronGeometry(r, 1)), "plain", i % 2 ? "#4f6b41" : "#5c7a4a");
         (blob.material as THREE.MeshStandardMaterial).flatShading = true;
         (blob.material as THREE.MeshStandardMaterial).roughness = 0.85;

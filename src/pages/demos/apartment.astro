@@ -12,7 +12,7 @@ const groups = [...new Set(kinds.map((k) => k.label))];
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Studio 01 — 42 m² · Shoppable room concept</title>
+    <title>Studio 01 — 450 sq ft · Shoppable room concept</title>
   </head>
   <body class="font-apt-sans bg-apt-paper text-apt-ink">
     <div id="stage" class="relative h-dvh w-full overflow-hidden">
@@ -22,7 +22,7 @@ const groups = [...new Set(kinds.map((k) => k.label))];
       <header class="pointer-events-none absolute left-0 right-0 top-0 z-10 flex flex-col gap-2.5 p-5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <p class="font-apt-mono text-[10px] uppercase tracking-[0.14em] text-apt-muted">Shoppable room concept</p>
-          <h1 class="mt-1.5 whitespace-nowrap text-[24px] leading-none tracking-tight sm:text-[30px]">Studio 01 — 42 m²</h1>
+          <h1 class="mt-1.5 whitespace-nowrap text-[24px] leading-none tracking-tight sm:text-[30px]">Studio 01 — 450 sq ft</h1>
         </div>
         <div class="flex shrink-0 items-center gap-1.5 whitespace-nowrap sm:gap-2">
           <span class="rounded-full bg-white/70 px-3 py-1.5 text-[12px] tabular-nums backdrop-blur sm:text-[13px]">
@@ -33,6 +33,9 @@ const groups = [...new Set(kinds.map((k) => k.label))];
           </button>
           <button type="button" data-reset class="pointer-events-auto rounded-full border border-apt-line bg-white/70 px-2.5 py-1.5 font-apt-mono text-[9px] uppercase tracking-[0.1em] backdrop-blur transition-colors hover:bg-white sm:px-3 sm:text-[10px] sm:tracking-[0.12em]">
             Reset view
+          </button>
+          <button type="button" data-mode aria-pressed="false" class="pointer-events-auto rounded-full border border-apt-ink bg-apt-ink px-2.5 py-1.5 font-apt-mono text-[9px] uppercase tracking-[0.1em] text-apt-paper transition-colors hover:bg-apt-accent hover:border-apt-accent sm:px-3 sm:text-[10px] sm:tracking-[0.12em]">
+            Walk inside
           </button>
         </div>
       </header>
@@ -119,8 +122,23 @@ const groups = [...new Set(kinds.map((k) => k.label))];
         <p class="mt-1.5 text-[10px] text-apt-muted">Demo content — prices, sizes and links are illustrative. Example link — no real product.</p>
       </div>
 
-      <p class="pointer-events-none absolute bottom-4 left-5 z-10 hidden whitespace-nowrap font-apt-mono text-[10px] uppercase tracking-[0.12em] text-apt-muted sm:block">
+      <p data-hint class="pointer-events-none absolute bottom-4 left-5 z-10 hidden whitespace-nowrap font-apt-mono text-[10px] uppercase tracking-[0.12em] text-apt-muted sm:block">
         Drag a piece to move · Drag empty space to orbit · Scroll to zoom
+      </p>
+
+      <!-- Walk mode: stand at named spots; WASD / arrows walk, drag looks around -->
+      <div data-spots hidden class="pointer-events-auto absolute left-1/2 top-[84px] z-10 -translate-x-1/2 flex-wrap items-center justify-center gap-1.5 sm:top-5">
+        <span class="font-apt-mono text-[10px] uppercase tracking-[0.12em] text-apt-muted">Stand at</span>
+        <button type="button" data-spot="middle" class="rounded-full border border-apt-line bg-white/80 px-2.5 py-1 text-[11px] backdrop-blur hover:bg-white">Middle</button>
+        <button type="button" data-spot="door" class="rounded-full border border-apt-line bg-white/80 px-2.5 py-1 text-[11px] backdrop-blur hover:bg-white">Entry</button>
+        <button type="button" data-spot="bed" class="rounded-full border border-apt-line bg-white/80 px-2.5 py-1 text-[11px] backdrop-blur hover:bg-white">Bed</button>
+        <button type="button" data-spot="kitchen" class="rounded-full border border-apt-line bg-white/80 px-2.5 py-1 text-[11px] backdrop-blur hover:bg-white">Kitchen</button>
+        <button type="button" data-spot="window" class="rounded-full border border-apt-line bg-white/80 px-2.5 py-1 text-[11px] backdrop-blur hover:bg-white">Window wall</button>
+      </div>
+
+      <!-- Shown when a drag was rejected and the piece snapped back -->
+      <p data-toast hidden role="status" class="pointer-events-none absolute left-1/2 top-[150px] z-30 -translate-x-1/2 rounded-full bg-apt-ink px-4 py-2 text-[12px] text-apt-paper shadow-lg sm:top-[84px]">
+        That spot is taken — the piece went back.
       </p>
 
       <p data-fallback hidden class="absolute inset-0 grid place-items-center text-center text-[13px] text-apt-muted">
@@ -272,9 +290,9 @@ const groups = [...new Set(kinds.map((k) => k.label))];
           $("[data-card-category]").textContent = labelFor(variant.kind);
           $("[data-card-name]").textContent = variant.name;
           $("[data-card-price]").textContent = formatPrice(variant.price);
-          $("[data-card-w]").textContent = `${variant.w} cm`;
-          $("[data-card-d]").textContent = `${variant.d} cm`;
-          $("[data-card-h]").textContent = `${variant.h} cm`;
+          $("[data-card-w]").textContent = `${variant.w}″`;
+          $("[data-card-d]").textContent = `${variant.d}″`;
+          $("[data-card-h]").textContent = `${variant.h}″`;
           $("[data-card-swatch]").style.background = variant.colorHex;
           $("[data-card-color]").textContent = `${variant.color} · ${formatDims(variant)}`;
 
@@ -286,13 +304,18 @@ const groups = [...new Set(kinds.map((k) => k.label))];
             ...siblings.map((s) => {
               const b = document.createElement("button");
               b.type = "button";
+              const current = s.id === variant.id;
+              // A size that would hit a neighbour or a wall is offered but disabled.
+              const fits = current || v.fits(s.id, placement.x, placement.z, placement.rotationY, id);
               b.className =
                 "rounded-full border px-2 py-1 text-[10px] transition-colors " +
-                (s.id === variant.id ? "border-apt-ink bg-apt-ink text-apt-paper" : "border-apt-line bg-white hover:border-apt-ink");
+                (current ? "border-apt-ink bg-apt-ink text-apt-paper " : "border-apt-line bg-white hover:border-apt-ink ") +
+                (fits ? "" : "cursor-not-allowed opacity-40 hover:border-apt-line");
               b.textContent = `${s.name.replace(/,.*/, "")} · ${formatPrice(s.price)}`;
+              b.disabled = !fits;
+              b.title = fits ? "" : "Does not fit here";
               b.addEventListener("click", () => {
-                const next = placements.map((p) => (p.id === id ? { ...p, variantId: s.id } : p));
-                placements = next;
+                placements = placements.map((p) => (p.id === id ? { ...p, variantId: s.id } : p));
                 sync();
                 focus = id;
                 fill(id);
@@ -368,39 +391,50 @@ const groups = [...new Set(kinds.map((k) => k.label))];
 
         // ── Add / remove / rotate ──────────────────────────────────────────
         const spawn = (kind: string) => {
+          // One bed only: the Bed button then focuses the existing bed so its size can be changed.
+          if (kind === "bed") {
+            const existing = placements.find((p) => variantsById.get(p.variantId)?.kind === "bed");
+            if (existing) {
+              lastPoint = v.centre(existing.id) ?? { x: stage.clientWidth * 0.5, y: stage.clientHeight * 0.45 };
+              pin(existing.id);
+              toast("There is already a bed — pick a size below.");
+              return;
+            }
+          }
           const options = variantsByKind.get(kind as never) ?? [];
-          const variant = options[0];
+          // New beds start at Full: it is the one most likely to fit a studio.
+          const variant = kind === "bed" ? (options.find((o) => o.id === "bed-full") ?? options[0]) : options[0];
           if (!variant) return;
+          const rotationY = kind === "sofa" ? Math.PI : 0;
           seq += 1;
           const id = `${kind}-${seq}`;
-          const spot = findOpenSpot(variant.w / 100, variant.d / 100);
-          placements = [...placements, { id, variantId: variant.id, x: spot.x, z: spot.z, rotationY: kind === "sofa" ? Math.PI : 0 }];
+          const spot = findOpenSpot(variant.id, rotationY);
+          if (!spot) {
+            toast(`No room left for a ${kind}.`);
+            return;
+          }
+          placements = [...placements, { id, variantId: variant.id, x: spot.x, z: spot.z, rotationY }];
           sync();
           lastPoint = { x: stage.clientWidth * 0.5, y: stage.clientHeight * 0.45 };
           pin(id);
         };
 
-        // Picks the open floor cell nearest the room centre. The grid is coarse on
-        // purpose: this runs on click, not per frame.
-        const findOpenSpot = (w: number, d: number) => {
-          let best = { x: 0, z: 0, score: Number.POSITIVE_INFINITY };
-          for (let x = -2.6; x <= 2.6; x += 0.2) {
-            for (let z = -2.1; z <= 2.1; z += 0.2) {
-              const clash = placements.some((p) => {
-                const pv = variantsById.get(p.variantId)!;
-                if (pv.kind === "rug") return false;
-                const hw = Math.abs(Math.sin(p.rotationY ?? 0)) > 0.7 ? pv.d / 200 : pv.w / 200;
-                const hd = Math.abs(Math.sin(p.rotationY ?? 0)) > 0.7 ? pv.w / 200 : pv.d / 200;
-                return Math.abs(x - p.x) < hw + w / 2 + 0.05 && Math.abs(z - p.z) < hd + d / 2 + 0.05;
-              });
-              if (clash) continue;
-              const inside = Math.abs(x) + w / 2 <= 3.15 && Math.abs(z) + d / 2 <= 2.75;
-              if (!inside) continue;
+        // Nearest free floor to the room centre. The grid is coarse on purpose:
+        // this runs on click, not per frame. Returns null when nothing fits.
+        const findOpenSpot = (variantId: string, rotationY: number) => {
+          let best: { x: number; z: number } | null = null;
+          let bestScore = Number.POSITIVE_INFINITY;
+          for (let x = -3; x <= 3; x += 0.1) {
+            for (let z = -2.6; z <= 2.6; z += 0.1) {
+              if (!v.fits(variantId, x, z, rotationY)) continue;
               const score = x * x + z * z;
-              if (score < best.score) best = { x, z, score };
+              if (score < bestScore) {
+                bestScore = score;
+                best = { x, z };
+              }
             }
           }
-          return Number.isFinite(best.score) ? best : { x: 0, z: 0, score: 0 };
+          return best;
         };
 
         const remove = (id: string) => {
@@ -414,13 +448,32 @@ const groups = [...new Set(kinds.map((k) => k.label))];
         };
 
         const rotate = (id: string) => {
-          placements = placements.map((p) => (p.id === id ? { ...p, rotationY: ((p.rotationY ?? 0) + Math.PI / 2) % (Math.PI * 2) } : p));
+          const current = placements.find((p) => p.id === id);
+          if (!current) return;
+          const rotationY = ((current.rotationY ?? 0) + Math.PI / 2) % (Math.PI * 2);
+          if (!v.fits(current.variantId, current.x, current.z, rotationY, id)) {
+            toast("Not enough room to turn it here.");
+            return;
+          }
+          placements = placements.map((p) => (p.id === id ? { ...p, rotationY } : p));
           sync();
           pin(id);
         };
 
         stage.querySelectorAll<HTMLElement>("[data-add]").forEach((button) => {
           button.addEventListener("click", () => spawn(button.dataset.add!));
+        });
+
+        let toastTimer = 0;
+        const toast = (message: string) => {
+          const el = $("[data-toast]");
+          el.textContent = message;
+          el.hidden = false;
+          clearTimeout(toastTimer);
+          toastTimer = window.setTimeout(() => (el.hidden = true), 2200);
+        };
+        v.setBlockedListener((blocked) => {
+          if (blocked) toast("That spot is taken — the piece went back.");
         });
         $("[data-remove]").addEventListener("click", () => pinned && remove(pinned));
         $("[data-rotate]").addEventListener("click", () => pinned && rotate(pinned));
@@ -433,6 +486,7 @@ const groups = [...new Set(kinds.map((k) => k.label))];
           drawDims();
         });
         $("[data-reset]").addEventListener("click", () => {
+          setWalk(false);
           v.resetView();
           unpin();
         });
@@ -466,6 +520,47 @@ const groups = [...new Set(kinds.map((k) => k.label))];
 
         sync();
 
+        // ── Walk mode ──────────────────────────────────────────────────────
+        const spotsBar = $("[data-spots]");
+        const modeButton = $("[data-mode]");
+        const hint = $("[data-hint]");
+
+        const bedPlacement = () => placements.find((p) => variantsById.get(p.variantId)?.kind === "bed");
+        const SPOTS: Record<string, () => [number, number, number, number]> = {
+          middle: () => [0, 0, 0, -3],
+          door: () => [2.6, 2.2, -2.6, -1],
+          window: () => [-2.5, 2.1, 2.5, -1.5],
+          kitchen: () => {
+            const k = placements.find((p) => variantsById.get(p.variantId)?.kind === "counter");
+            return k ? [k.x - 1.1, k.z, k.x, k.z] : [1, 0, 3, 0];
+          },
+          bed: () => {
+            const b = bedPlacement();
+            return b ? [b.x + 1.4, b.z + 1.6, b.x, b.z] : [0, 1, -2, -2];
+          },
+        };
+
+        const setWalk = (walking: boolean) => {
+          v.setMode(walking ? "walk" : "orbit");
+          modeButton.setAttribute("aria-pressed", String(walking));
+          modeButton.textContent = walking ? "Back to overview" : "Walk inside";
+          spotsBar.hidden = !walking;
+          spotsBar.style.display = walking ? "flex" : "";
+          hint.textContent = walking
+            ? "W A S D or arrows to walk · Drag to look around"
+            : "Drag a piece to move · Drag empty space to orbit · Scroll to zoom";
+          if (walking) {
+            unpin();
+            dims.replaceChildren();
+            v.standAt(...SPOTS.middle());
+          }
+        };
+
+        modeButton.addEventListener("click", () => setWalk(v.getMode() !== "walk"));
+        spotsBar.querySelectorAll<HTMLElement>("[data-spot]").forEach((button) => {
+          button.addEventListener("click", () => v.standAt(...SPOTS[button.dataset.spot!]()));
+        });
+
         (window as any).__aptViewer = {
           get ready() {
             return true;
@@ -473,9 +568,16 @@ const groups = [...new Set(kinds.map((k) => k.label))];
           get itemCount() {
             return placements.length;
           },
+          get mode() {
+            return v.getMode();
+          },
           placements: () => placements.map((p) => ({ ...p })),
           screenPoint: (id: string) => v.centre(id),
           floorPoint: (x: number, y: number) => v.floorPointAt(x, y),
+          eye: () => v.eye(),
+          tint: (id: string) => v.tint(id),
+          fits: (variantId: string, x: number, z: number, rotationY?: number, ignoreId?: string) => v.fits(variantId, x, z, rotationY, ignoreId),
+          setWalk,
         };
       }
     </script>
