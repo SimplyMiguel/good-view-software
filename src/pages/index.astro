@@ -18,15 +18,21 @@ const services = [
   },
   {
     number: "002",
-    kind: "tools" as const,
-    title: "Business tools",
-    body: "Custom dashboards, invoice tools, client portals, and systems for managing daily work.",
+    kind: "viewer" as const,
+    title: "3D viewers",
+    body: "Interactive product views customers can rotate, configure, and inspect in the browser.",
   },
   {
     number: "003",
-    kind: "integrations" as const,
-    title: "Integrations and automation",
-    body: "Connect existing tools and reduce repetitive data entry and reporting.",
+    kind: "mobile" as const,
+    title: "Mobile apps",
+    body: "iOS and Android apps for booking, ordering, or work out in the field.",
+  },
+  {
+    number: "004",
+    kind: "tools" as const,
+    title: "Internal tools",
+    body: "Custom dashboards and invoicing tools for managing daily work.",
   },
 ];
 ---
@@ -81,17 +87,17 @@ const services = [
       <div class="mx-auto max-w-[1080px] px-6 pt-10 sm:px-10 sm:pt-14">
         <div class="flex items-end justify-between pb-3">
           <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">Services</p>
-          <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">001—003</p>
+          <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">001—004</p>
         </div>
 
-        <div class="grid gap-y-10 py-8 sm:grid-cols-3 sm:gap-0 sm:py-9">
+        <div class="grid gap-y-10 py-8 sm:grid-cols-2 sm:gap-y-12 lg:grid-cols-4 lg:gap-y-0 sm:py-9">
           {
             services.map((service, index) => (
               <article
                 class:list={[
-                  "flex flex-col sm:min-h-[255px]",
-                  index === 0 ? "sm:pr-8" : "sm:border-l sm:border-line sm:pl-8",
-                  index === 2 ? "sm:pr-0" : "",
+                  "flex flex-col",
+                  index === 0 ? "lg:pr-6" : "lg:border-l lg:border-line lg:px-6",
+                  index === 3 ? "lg:pr-0" : "",
                 ]}
               >
                 <span class="font-mono text-[9px] tracking-[0.12em] text-ink-500">{service.number}</span>

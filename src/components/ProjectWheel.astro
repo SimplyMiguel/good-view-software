@@ -8,32 +8,25 @@ const projects = [
     detail: "Explains what you do and turns visitors into inquiries.",
   },
   {
-    id: "portal",
-    number: "002",
-    title: "Client portal",
-    kind: "Dashboard",
-    detail: "Invoices, jobs, and reports in one private place.",
-  },
-  {
-    id: "store",
-    number: "003",
-    title: "Online store",
-    kind: "Commerce",
-    detail: "Shopify or custom storefronts that are simple to run.",
-  },
-  {
     id: "viewer",
-    number: "004",
+    number: "002",
     title: "3D viewer",
     kind: "Interactive product",
     detail: "Let customers rotate, configure, and inspect a product.",
   },
   {
     id: "mobile",
-    number: "005",
+    number: "003",
     title: "Mobile app",
     kind: "iOS · Android",
     detail: "Booking, ordering, or field tools in your customers' pockets.",
+  },
+  {
+    id: "portal",
+    number: "004",
+    title: "Internal tool",
+    kind: "Dashboards · Invoicing",
+    detail: "Dashboards and invoicing that replace manual spreadsheets.",
   },
 ];
 ---
@@ -44,7 +37,7 @@ const projects = [
       <h2 id="projects-heading" class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">
         Project previews
       </h2>
-      <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">001—005</p>
+      <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">001—004</p>
     </div>
 
     <div class="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.62fr)_minmax(0,1fr)] lg:gap-12">
@@ -131,38 +124,6 @@ const projects = [
               </div>
             </div>
 
-            <div data-project-preview="store" class="h-full" hidden>
-              <div class="flex h-full flex-col overflow-hidden bg-paper">
-                <div class="flex items-center justify-between border-b border-line px-4 py-2.5 font-mono text-[7px] uppercase tracking-[0.12em] text-ink-500">
-                  <span>Field Supply</span>
-                  <span>Cart (2)</span>
-                </div>
-                <div class="flex-1 p-4 sm:p-6">
-                  <div class="grid h-[58%] grid-cols-3 gap-2.5">
-                    <div class="flex flex-col justify-between bg-[#edede7] p-2">
-                      <div class="mx-auto mt-2 h-14 w-14 rounded-full border border-ink-500/40"></div>
-                      <div class="flex justify-between font-mono text-[6px] text-ink-500"><span>Canvas tote</span><span>$28</span></div>
-                    </div>
-                    <div class="flex flex-col justify-between bg-[#edede7] p-2">
-                      <div class="mx-auto mt-3 h-12 w-12 border border-ink-500/40"></div>
-                      <div class="flex justify-between font-mono text-[6px] text-ink-500"><span>Field cap</span><span>$34</span></div>
-                    </div>
-                    <div class="flex flex-col justify-between bg-[#edede7] p-2">
-                      <div class="mx-auto mt-3 h-14 w-10 rounded-t-full border border-ink-500/40"></div>
-                      <div class="flex justify-between font-mono text-[6px] text-ink-500"><span>Bottle</span><span>$22</span></div>
-                    </div>
-                  </div>
-                  <div class="mt-4 flex items-end justify-between border-t border-line pt-3">
-                    <div>
-                      <p class="text-[13px] tracking-[-0.01em] sm:text-[15px]">Everyday goods.</p>
-                      <p class="mt-1 font-mono text-[7px] uppercase tracking-[0.1em] text-ink-500">Free shipping over $75</p>
-                    </div>
-                    <span class="border border-ink-950 px-2.5 py-1 font-mono text-[7px] uppercase tracking-[0.1em]">Shop all</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div data-project-preview="viewer" class="h-full" hidden>
               <div class="flex h-full flex-col overflow-hidden border border-white/10 bg-[#1d1d1b] text-paper">
                 <div class="flex items-center justify-between px-4 py-2.5 font-mono text-[7px] uppercase tracking-[0.12em] text-paper/40">
@@ -170,7 +131,7 @@ const projects = [
                   <span>Configurator</span>
                 </div>
                 <div class="relative flex flex-1 items-center justify-center">
-                  <svg viewBox="0 0 180 150" class="h-[82%] w-auto" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
+                  <svg viewBox="0 0 180 150" class="absolute inset-0 m-auto h-[78%] w-auto" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
                     <g class="text-paper/70">
                       <path d="M90 22l48 27v54l-48 27-48-27V49z" />
                       <path d="M90 22v56m0 0v52m0-52l48-27m-48 27L42 49" stroke-dasharray="2 4" />
@@ -241,17 +202,20 @@ const projects = [
             role="listbox"
             aria-label="Project previews"
             tabindex="0"
-            class="project-wheel h-[304px] overflow-y-auto py-[114px] outline-offset-4 sm:h-[380px] sm:py-[152px]"
+            aria-activedescendant={`project-option-${projects[0].id}`}
+            class="project-wheel h-[304px] snap-y snap-mandatory overflow-y-auto overscroll-y-auto py-[114px] outline-offset-4 sm:h-[380px] sm:py-[152px]"
           >
             {
               projects.map((project, index) => (
                 <button
                   type="button"
                   role="option"
+                  id={`project-option-${project.id}`}
+                  tabindex="-1"
                   aria-selected={index === 0 ? "true" : "false"}
                   data-project-option={project.id}
                   data-active={index === 0 ? "true" : "false"}
-                  class="group block h-[76px] w-full border-t border-line pt-2.5 text-left text-[#c4c4bc] data-[active=true]:border-ink-950 data-[active=true]:text-ink-950"
+                  class="group block h-[76px] w-full snap-center border-t border-line pt-2.5 text-left text-[#c4c4bc] data-[active=true]:border-ink-950 data-[active=true]:text-ink-950"
                 >
                   <span class="flex items-baseline justify-between gap-4">
                     <span class="text-[26px] leading-[1.1] tracking-[-0.025em] sm:text-[30px]">{project.title}</span>
@@ -281,8 +245,13 @@ const projects = [
   if (wheel) {
     const options = Array.from(wheel.querySelectorAll<HTMLButtonElement>("[data-project-option]"));
     const previews = Array.from(document.querySelectorAll<HTMLElement>("[data-project-preview]"));
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame = 0;
-    let current = "website";
+    let settle = 0;
+    let current = options[0]?.dataset.projectOption ?? "";
+    // While set, a click/key-driven smooth scroll is in flight; ignore the
+    // intermediate items it passes so previews don't flicker.
+    let target: string | null = null;
 
     const activate = (id: string) => {
       if (id === current) return;
@@ -295,13 +264,11 @@ const projects = [
         option.dataset.active = String(active);
         option.setAttribute("aria-selected", String(active));
       }
-    };
-
-    const centerOption = (option: HTMLElement) => {
-      wheel.scrollTop = option.offsetTop - (wheel.clientHeight - option.offsetHeight) / 2;
+      wheel.setAttribute("aria-activedescendant", `project-option-${id}`);
     };
 
     const nearest = () => {
+      if (target) return;
       const midpoint = wheel.scrollTop + wheel.clientHeight / 2;
       let best = options[0];
       let distance = Number.POSITIVE_INFINITY;
@@ -315,9 +282,30 @@ const projects = [
       if (best) activate(best.dataset.projectOption as string);
     };
 
+    const goTo = (option: HTMLElement) => {
+      target = option.dataset.projectOption as string;
+      activate(target);
+      wheel.scrollTo({
+        top: option.offsetTop - (wheel.clientHeight - option.offsetHeight) / 2,
+        behavior: reduceMotion.matches ? "auto" : "smooth",
+      });
+      clearTimeout(settle);
+      settle = window.setTimeout(() => {
+        target = null;
+      }, 160);
+    };
+
     wheel.addEventListener(
       "scroll",
       () => {
+        if (target) {
+          // Still animating toward the target: extend the lock until scrolling stops.
+          clearTimeout(settle);
+          settle = window.setTimeout(() => {
+            target = null;
+          }, 160);
+          return;
+        }
         cancelAnimationFrame(frame);
         frame = requestAnimationFrame(nearest);
       },
@@ -325,10 +313,7 @@ const projects = [
     );
 
     for (const option of options) {
-      option.addEventListener("click", () => {
-        centerOption(option);
-        activate(option.dataset.projectOption as string);
-      });
+      option.addEventListener("click", () => goTo(option));
     }
 
     wheel.addEventListener("keydown", (event) => {
@@ -336,9 +321,7 @@ const projects = [
       event.preventDefault();
       const index = options.findIndex((option) => option.dataset.projectOption === current);
       const next = Math.min(options.length - 1, Math.max(0, index + (event.key === "ArrowDown" ? 1 : -1)));
-      options[next].focus({ preventScroll: true });
-      centerOption(options[next]);
-      activate(options[next].dataset.projectOption as string);
+      goTo(options[next]);
     });
 
     wheel.scrollTop = 0;
