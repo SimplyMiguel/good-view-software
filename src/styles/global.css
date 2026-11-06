@@ -1,56 +1,81 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
 
-@font-face {
-  font-family: "Switzer";
-  src: url("/fonts/switzer-300.woff2") format("woff2");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Switzer";
-  src: url("/fonts/switzer-400.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Switzer";
-  src: url("/fonts/switzer-500.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
+/*
+  Design system adapted from 802.software: Inter + JetBrains Mono, a 1200px
+  12-column grid, heavy tight headlines, 8px buttons, 16px cards, and one
+  saturated brand colour used for the hero plane and primary actions.
+  The brand hue is Good View's own (blue), not 802's orange — swap --brand to
+  recolour the whole site.
+*/
 @theme {
-  --font-sans: "Switzer", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, monospace;
-  --color-ink-950: #111111;
-  --color-ink-700: #4f4f4a;
-  --color-ink-500: #8a8a83;
-  --color-paper: #f7f7f4;
-  --color-line: #e4e4df;
-  --color-brand: #111111;
-  --color-brand-dark: #333333;
+  --font-sans: "Inter Variable", "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, monospace;
+
+  --color-brand: #1f3ce8;
+  --color-brand-2: #1630c4;
+  --color-brand-text: #1a33c9;
+  --color-brand-tint: #eef1ff;
+  --color-brand-glow: #6f86ff;
+
+  --color-ink-950: #0a0c1e;
+  --color-ink-700: #2a2f4a;
+  --color-ink-500: #5a6070;
+  --color-ink-300: #8b90a0;
+
+  --color-paper: #ffffff;
+  --color-paper-soft: #f6f7fb;
+  --color-line: #e6e8f0;
+  --color-line-strong: #d4d7e3;
+
+  --radius-card: 16px;
+  --radius-btn: 8px;
+
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 html {
   background: var(--color-paper);
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-feature-settings: "cv11", "ss01";
+}
+
+/* 802's headline treatment: heavy, very tight, near-solid leading. */
+h1,
+h2,
+h3 {
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  font-weight: 800;
+  text-wrap: balance;
 }
 
 ::selection {
-  background: var(--color-ink-950);
-  color: var(--color-paper);
+  background: var(--color-brand);
+  color: #fff;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-ink-950);
+  outline: 2px solid var(--color-brand);
   outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

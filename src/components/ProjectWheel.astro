@@ -37,18 +37,13 @@ const projects = [
 ---
 
 <section id="projects" aria-labelledby="projects-heading">
-  <div class="mx-auto mt-20 max-w-[1080px] px-6 sm:mt-28 sm:px-10">
-    <div class="flex items-end justify-between border-t border-line pt-3">
-      <h2 id="projects-heading" class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">
-        Project previews
-      </h2>
-      <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">001—003</p>
-    </div>
+  <div>
+    <h2 id="projects-heading" class="sr-only">Project previews</h2>
 
-    <div class="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.62fr)_minmax(0,1fr)] lg:gap-12">
+    <div class="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-10">
       <div>
-        <div class="flex aspect-[4/3] flex-col bg-ink-950 p-3 sm:p-5" aria-live="polite">
-          <div class="flex items-center justify-between pb-3 font-mono text-[7px] uppercase tracking-[0.12em] text-paper/40 sm:text-[8px]">
+        <div class="flex aspect-[4/3] flex-col overflow-hidden rounded-[16px] bg-ink-950 p-3 shadow-[0_24px_60px_-28px_rgba(10,12,30,0.45)] sm:p-5" aria-live="polite">
+          <div class="flex items-center justify-between pb-3 font-mono text-[9px] uppercase tracking-[0.1em] text-paper/45">
             <span>Concept preview</span>
             <span>Not client work</span>
           </div>
@@ -225,26 +220,32 @@ const projects = [
                   aria-selected={index === 0 ? "true" : "false"}
                   data-project-option={project.id}
                   data-active={index === 0 ? "true" : "false"}
-                  class="group block h-[76px] w-full snap-center border-t border-line pt-2.5 text-left text-[#c4c4bc] data-[active=true]:border-ink-950 data-[active=true]:text-ink-950"
+                  class="group block h-[76px] w-full snap-center border-t border-line pt-2.5 text-left text-ink-300 transition-colors data-[active=true]:border-brand data-[active=true]:text-ink-950"
                 >
                   <span class="flex items-baseline justify-between gap-4">
-                    <span class="text-[26px] leading-[1.1] tracking-[-0.025em] sm:text-[30px]">{project.title}</span>
-                    <span class="font-mono text-[9px] tracking-[0.12em]">{project.number}</span>
+                    <span class="text-[24px] font-semibold leading-[1.1] tracking-[-0.03em] sm:text-[28px]">{project.title}</span>
+                    <span class="font-mono text-[10px] tracking-[0.1em]">{project.number}</span>
                   </span>
-                  <span class="mt-1 block truncate text-[11px] text-ink-700 opacity-0 group-data-[active=true]:opacity-100">
+                  <span class="mt-1 block truncate text-[12px] text-ink-500 opacity-0 group-data-[active=true]:opacity-100">
                     {project.detail}
                   </span>
                 </button>
               ))
             }
           </div>
-          <div class="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-paper to-transparent"></div>
-          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-paper to-transparent"></div>
+          <div class="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-paper-soft to-transparent"></div>
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-paper-soft to-transparent"></div>
         </div>
 
-        <p class="pt-3 text-[11px] leading-[1.5] text-ink-500">
+        <p class="pt-3 text-[12px] leading-[1.5] text-ink-500">
           Scroll, use arrow keys, or click a project.
         </p>
+
+        <div class="mt-5 flex flex-wrap gap-1.5">
+          <span class="rounded-full border border-line bg-paper px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-500">Concept work</span>
+          <span class="rounded-full border border-line bg-paper px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-500">Not client work</span>
+          <span class="rounded-full border border-line bg-paper px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-500">Bakersfield, CA</span>
+        </div>
       </div>
     </div>
   </div>
