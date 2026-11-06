@@ -1,0 +1,210 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const services = [
+  {
+    title: "Product engineering",
+    body: "End-to-end delivery of web apps and internal tools — from first schema to production deploy.",
+  },
+  {
+    title: "Architecture & strategy",
+    body: "A clear technical direction before you commit headcount or a budget. Written down, with tradeoffs named.",
+  },
+  {
+    title: "Rescue & stabilization",
+    body: "Inherited a codebase that ships slowly or breaks often? We find the cause, fix it, and leave a maintainable path forward.",
+  },
+  {
+    title: "AI integration",
+    body: "Practical automation and LLM features that fit your workflow, evaluated against real failure modes.",
+  },
+];
+
+const steps = [
+  {
+    label: "01",
+    title: "Get the view",
+    body: "A short audit of your product, codebase, and constraints. We tell you what we see — including what not to build.",
+  },
+  {
+    label: "02",
+    title: "Set the scope",
+    body: "A fixed, written plan with milestones, a working demo cadence, and an honest estimate range.",
+  },
+  {
+    label: "03",
+    title: "Build in the open",
+    body: "Weekly demos, shared repositories, and decisions recorded as they happen. No black boxes.",
+  },
+  {
+    label: "04",
+    title: "Hand off clean",
+    body: "Documentation, tests, and a deploy pipeline your team can run without us.",
+  },
+];
+---
+
+<Layout
+  title="Good View Software — independent software consulting"
+  description="Good View Software is an independent consultancy building, rescuing, and clarifying web software."
+>
+  <header class="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+    <a href="/" class="flex items-center gap-3">
+      <svg viewBox="0 0 32 32" class="h-8 w-8" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="#0d6b5f"></rect>
+        <path d="M8 16c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"></path>
+        <circle cx="16" cy="16" r="3" fill="#fff"></circle>
+      </svg>
+      <span class="text-[15px] font-semibold tracking-tight">Good View Software</span>
+    </a>
+    <nav class="hidden items-center gap-8 text-sm text-ink-700 sm:flex">
+      <a href="#services" class="transition-colors hover:text-ink-950">Services</a>
+      <a href="#approach" class="transition-colors hover:text-ink-950">Approach</a>
+      <a
+        href="mailto:hello@goodviewsoftware.com"
+        class="rounded-full bg-ink-950 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+      >
+        Get in touch
+      </a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="mx-auto grid max-w-6xl gap-14 px-6 pb-24 pt-16 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:pb-32 lg:pt-24">
+      <div>
+        <p class="text-xs font-medium uppercase tracking-[0.18em] text-brand-700">
+          Independent software consultancy
+        </p>
+        <h1 class="mt-5 font-display text-6xl leading-[0.95] tracking-tight sm:text-7xl">
+          Software,<br />seen clearly.
+        </h1>
+        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-700">
+          We help teams build, rescue, and ship web software. Small engagements,
+          direct communication, and code you fully own at the end.
+        </p>
+        <div class="mt-9 flex flex-wrap items-center gap-4">
+          <a
+            href="mailto:hello@goodviewsoftware.com"
+            class="rounded-full bg-brand-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+          >
+            Start a conversation
+          </a>
+          <a
+            href="#services"
+            class="rounded-full border border-mist-200 px-6 py-3 text-sm font-medium text-ink-950 transition-colors hover:border-ink-950"
+          >
+            What we do
+          </a>
+        </div>
+      </div>
+
+      <aside class="rounded-2xl border border-mist-200 bg-mist-50 p-8">
+        <p class="text-xs font-medium uppercase tracking-[0.18em] text-ink-700">How we work</p>
+        <ul class="mt-5 space-y-4 text-[15px] leading-relaxed text-ink-700">
+          <li class="flex gap-3">
+            <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600"></span>
+            Fixed scope and price before work starts.
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600"></span>
+            A working demo every week, not a status report.
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600"></span>
+            Your repository, your infrastructure, your code.
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600"></span>
+            One senior engineer accountable for the outcome.
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <section id="services" class="border-t border-mist-200 bg-mist-50">
+      <div class="mx-auto max-w-6xl px-6 py-24">
+        <div class="max-w-2xl">
+          <p class="text-xs font-medium uppercase tracking-[0.18em] text-brand-700">Services</p>
+          <h2 class="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
+            The work we take on
+          </h2>
+          <p class="mt-5 text-lg leading-relaxed text-ink-700">
+            Most engagements are four to twelve weeks. Every one starts with an
+            audit, so the recommendation fits the actual problem.
+          </p>
+        </div>
+        <div class="mt-14 grid gap-px overflow-hidden rounded-2xl border border-mist-200 bg-mist-200 sm:grid-cols-2">
+          {
+            services.map((service) => (
+              <article class="bg-white p-8">
+                <h3 class="text-lg font-semibold tracking-tight">{service.title}</h3>
+                <p class="mt-3 text-[15px] leading-relaxed text-ink-700">{service.body}</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section id="approach" class="border-t border-mist-200">
+      <div class="mx-auto max-w-6xl px-6 py-24">
+        <div class="grid gap-14 lg:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <p class="text-xs font-medium uppercase tracking-[0.18em] text-brand-700">Approach</p>
+            <h2 class="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
+              Clear from the first week
+            </h2>
+            <p class="mt-5 max-w-md text-lg leading-relaxed text-ink-700">
+              Consulting fails when the work is invisible. Ours is designed so
+              you always know what is being built, what it costs, and what comes
+              next.
+            </p>
+          </div>
+          <ol class="space-y-8">
+            {
+              steps.map((step) => (
+                <li class="flex gap-6 border-t border-mist-200 pt-8">
+                  <span class="font-display text-2xl text-brand-600">{step.label}</span>
+                  <div>
+                    <h3 class="text-lg font-semibold tracking-tight">{step.title}</h3>
+                    <p class="mt-2 text-[15px] leading-relaxed text-ink-700">{step.body}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="border-t border-mist-200 bg-ink-950 text-white">
+      <div class="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-24 lg:flex-row lg:items-end lg:justify-between">
+        <div class="max-w-2xl">
+          <p class="text-xs font-medium uppercase tracking-[0.18em] text-white/60">Next step</p>
+          <h2 class="mt-4 font-display text-4xl tracking-tight sm:text-5xl">
+            Describe the problem.
+            <br />
+            We'll tell you what it takes.
+          </h2>
+          <p class="mt-5 text-lg leading-relaxed text-white/70">
+            A short call, no pitch deck. If we're not the right fit, we'll say so.
+          </p>
+        </div>
+        <a
+          href="mailto:hello@goodviewsoftware.com"
+          class="inline-flex shrink-0 items-center gap-3 rounded-full bg-white px-6 py-3 text-sm font-medium text-ink-950 transition-colors hover:bg-mist-200"
+        >
+          hello@goodviewsoftware.com
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-white/10 bg-ink-950">
+    <div class="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-8 text-sm text-white/50 sm:flex-row sm:items-center sm:justify-between">
+      <p>© {new Date().getFullYear()} Good View Software. All rights reserved.</p>
+      <p>Built with Astro and Tailwind CSS.</p>
+    </div>
+  </footer>
+</Layout>
