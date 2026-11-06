@@ -1,0 +1,52 @@
+---
+interface Props {
+  kind: "website" | "tools" | "integrations";
+}
+
+const { kind } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 120 96"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  class="h-[96px] w-auto"
+>
+  {
+    kind === "website" && (
+      <g>
+        <path d="M14 63c10-26 22-34 32-18 10 17 8 28 22 27 12-1 16-13 24-27 5-9 11-11 16-4" />
+        <circle cx="24" cy="49" r="3.5" />
+        <circle cx="58" cy="64" r="4.5" />
+        <circle cx="93" cy="43" r="3.5" />
+        <circle cx="108" cy="41" r="2.5" />
+      </g>
+    )
+  }
+  {
+    kind === "tools" && (
+      <g>
+        <circle cx="45" cy="43" r="21" />
+        <circle cx="68" cy="43" r="21" />
+        <circle cx="56.5" cy="61" r="16" />
+        <rect x="86" y="18" width="16" height="16" />
+      </g>
+    )
+  }
+  {
+    kind === "integrations" && (
+      <g>
+        <circle cx="24" cy="34" r="6" />
+        <circle cx="58" cy="21" r="5.5" />
+        <circle cx="92" cy="38" r="6.5" />
+        <circle cx="42" cy="68" r="6" />
+        <circle cx="80" cy="72" r="7" />
+        <path d="M30 32l22-8M64 23l22 12M87 44l-5 21M48 66l25 5M36 40l4 22" />
+      </g>
+    )
+  }
+</svg>

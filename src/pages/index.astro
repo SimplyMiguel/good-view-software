@@ -1,5 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import ProjectWheel from "../components/ProjectWheel.astro";
+import ServiceArt from "../components/ServiceArt.astro";
 import { site } from "../config";
 
 const email = site.email?.trim();
@@ -9,14 +11,20 @@ const mailto = email
 
 const services = [
   {
+    number: "001",
+    kind: "website" as const,
     title: "Websites",
     body: "Fast, mobile-friendly websites that explain your business and help customers contact you.",
   },
   {
+    number: "002",
+    kind: "tools" as const,
     title: "Business tools",
     body: "Custom dashboards, invoice tools, client portals, and systems for managing daily work.",
   },
   {
+    number: "003",
+    kind: "integrations" as const,
     title: "Integrations and automation",
     body: "Connect existing tools and reduce repetitive data entry and reporting.",
   },
@@ -27,108 +35,155 @@ const services = [
   title={`${site.name} · Custom websites and software`}
   description="Independent software developer in Bakersfield, California, building practical websites, dashboards, and custom tools for small businesses and nonprofits."
 >
-  <header class="border-b border-line">
-    <div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-5 sm:px-8">
-      <a href="/" class="whitespace-nowrap text-sm font-semibold tracking-tight sm:text-base">
+  <header class="bg-ink-950 text-paper">
+    <div class="mx-auto grid max-w-[1080px] grid-cols-2 items-center gap-4 px-6 py-5 sm:grid-cols-3 sm:px-10">
+      <a href="/" class="whitespace-nowrap text-[11px] font-medium uppercase tracking-[0.08em] text-paper sm:text-[12px]">
         {site.name}
       </a>
-      <nav aria-label="Main" class="flex items-center gap-x-4 text-[13px] text-ink-700 sm:gap-x-7 sm:text-sm">
-        <a href="#services" class="hover:text-ink-950 hover:underline underline-offset-4">Services</a>
-        <a href="#about" class="hover:text-ink-950 hover:underline underline-offset-4">About</a>
-        <a href="#contact" class="hover:text-ink-950 hover:underline underline-offset-4">Contact</a>
+      <p class="hidden text-center font-mono text-[9px] uppercase tracking-[0.12em] text-paper/40 sm:block sm:text-[10px]">
+        Bakersfield, California
+      </p>
+      <nav
+        aria-label="Main"
+        class="flex items-center justify-self-end gap-x-4 font-mono text-[9px] uppercase tracking-[0.12em] text-paper/60 sm:gap-x-7 sm:text-[10px]"
+      >
+        <a href="#services" class="hover:text-paper">Services</a>
+        <a href="#about" class="hover:text-paper">About</a>
+        <a href="#contact" class="hover:text-paper">Contact</a>
       </nav>
     </div>
   </header>
 
   <main id="main">
-    <section class="mx-auto max-w-5xl px-5 pb-16 pt-16 sm:px-8 sm:pb-24 sm:pt-28">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-brand">
-        Independent software developer
-      </p>
-      <h1 class="mt-6 max-w-4xl font-display text-5xl leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
-        Custom websites and software for your business.
-      </h1>
-      <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-700">
-        I help businesses and nonprofits replace manual work with practical websites, dashboards, and custom tools. Based in Bakersfield, California.
-      </p>
-      <a
-        href="#contact"
-        class="mt-10 inline-flex items-center justify-center rounded-full bg-brand px-7 py-3.5 text-sm font-medium text-white hover:bg-brand-dark"
-      >
-        Discuss your project
-      </a>
-    </section>
+    <section class="bg-ink-950 text-paper"><div class="mx-auto max-w-[1080px] px-6 pb-16 pt-10 sm:px-10 sm:pb-24 sm:pt-16">
+      <div class="grid gap-10 lg:grid-cols-12 lg:gap-8">
+        <h1 class="max-w-[14ch] text-[clamp(2.9rem,7.6vw,5.3rem)] font-normal leading-[0.98] tracking-[-0.025em] lg:col-span-7">
+          Custom websites and software for your business.
+        </h1>
+        <div class="lg:col-span-5 lg:pl-4 lg:pt-1">
+          <p class="max-w-[29ch] text-[13px] leading-[1.6] text-paper/55 sm:text-[14px]">
+            I help businesses and nonprofits replace manual work with practical websites, dashboards, and custom tools. Based in Bakersfield, California.
+          </p>
+          <a
+            href="#contact"
+            class="mt-10 inline-flex items-center gap-4 rounded-full border border-paper/30 py-1 pl-5 pr-1 text-[12px] font-medium text-paper hover:border-paper hover:bg-paper hover:text-ink-950 sm:mt-14"
+          >
+            Discuss your project
+            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-paper text-[13px] text-ink-950" aria-hidden="true">
+              ↗
+            </span>
+          </a>
+        </div>
+      </div>
+    </div></section>
 
-    <section id="services" class="border-t border-line">
-      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-24">
-        <h2 class="font-display text-4xl tracking-tight sm:text-5xl">What I build</h2>
-        <div class="mt-12 grid gap-10 sm:grid-cols-3 sm:gap-8">
+    <section id="services">
+      <div class="mx-auto max-w-[1080px] px-6 pt-10 sm:px-10 sm:pt-14">
+        <div class="flex items-end justify-between pb-3">
+          <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">Services</p>
+          <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">001—003</p>
+        </div>
+
+        <div class="grid gap-y-10 py-8 sm:grid-cols-3 sm:gap-0 sm:py-9">
           {
-            services.map((service) => (
-              <article class="border-t border-line pt-6">
-                <h3 class="text-base font-semibold tracking-tight">{service.title}</h3>
-                <p class="mt-3 text-[15px] leading-relaxed text-ink-700">{service.body}</p>
+            services.map((service, index) => (
+              <article
+                class:list={[
+                  "flex flex-col sm:min-h-[255px]",
+                  index === 0 ? "sm:pr-8" : "sm:border-l sm:border-line sm:pl-8",
+                  index === 2 ? "sm:pr-0" : "",
+                ]}
+              >
+                <span class="font-mono text-[9px] tracking-[0.12em] text-ink-500">{service.number}</span>
+                <div class="mt-8 flex h-[96px] items-start text-ink-950">
+                  <ServiceArt kind={service.kind} />
+                </div>
+                <h2 class="mt-7 text-[16px] font-normal leading-tight tracking-[-0.01em]">{service.title}</h2>
+                <p class="mt-2 max-w-[30ch] text-[11px] leading-[1.55] text-ink-700">{service.body}</p>
               </article>
             ))
           }
         </div>
 
-        <p class="mt-14 max-w-2xl border-l-2 border-brand pl-5 text-[15px] leading-relaxed text-ink-700">
-          <span class="font-semibold text-ink-950">Pricing.</span>{" "}
-          Every project starts with a conversation and a written quote. Scope and pricing are agreed before development begins.
-        </p>
-      </div>
-    </section>
-
-    <section id="about" class="border-t border-line bg-white">
-      <div class="mx-auto grid max-w-5xl gap-8 px-5 py-16 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] sm:gap-16 sm:px-8 sm:py-24">
-        <h2 class="font-display text-4xl tracking-tight sm:text-5xl">About</h2>
-        <div class="max-w-xl space-y-5 text-[16px] leading-relaxed text-ink-700">
-          <p>
-            I'm an independent developer based in Bakersfield. I build websites and business software for small businesses and nonprofits, and I do the work myself.
-          </p>
-          <p>
-            That means you work directly with the person designing, building, and supporting your project. No account managers, no handoffs, and no team you never meet.
-          </p>
-          <p>
-            I care about software that earns its place: it should remove a repetitive task, make information easier to find, or help customers reach you. If it doesn't do one of those things, it probably doesn't need to be built.
+        <div class="grid gap-2 border-t border-line py-4 sm:grid-cols-3 sm:gap-8">
+          <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">Pricing</p>
+          <p class="text-[11.5px] leading-[1.55] text-ink-700 sm:col-span-2 sm:max-w-[52ch]">
+            Every project starts with a conversation and a written quote. Scope and pricing are agreed before development begins.
           </p>
         </div>
       </div>
     </section>
 
-    <section id="contact" class="border-t border-line">
-      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-24">
-        <h2 class="font-display text-4xl tracking-tight sm:text-5xl">Tell me what you need.</h2>
-        <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-700">
-          Describe your business, what you want to build, and what's difficult about your current process. Not sure what you need? That's fine too.
-        </p>
+    <ProjectWheel />
 
-        {
-          email ? (
-            <div class="mt-9">
-              <a
-                href={mailto}
-                class="inline-flex items-center justify-center rounded-full bg-brand px-7 py-3.5 text-sm font-medium text-white hover:bg-brand-dark"
-              >
-                Email about a project
-              </a>
-              <p class="mt-4 text-sm text-ink-500">
-                Or write to <a href={mailto} class="text-ink-700 underline underline-offset-4">{email}</a>.
-              </p>
-            </div>
-          ) : (
-            <p class="mt-9 text-[15px] font-medium text-ink-700">
-              {site.inquiriesNote}
+    <section id="about" class="bg-[#efefea]">
+      <div class="mx-auto max-w-[1080px] px-6 py-16 sm:px-10 sm:py-24">
+        <div class="grid gap-10 lg:grid-cols-12 lg:gap-8">
+          <div class="lg:col-span-7">
+            <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">About</p>
+            <h2 class="mt-5 max-w-[13ch] text-[clamp(2.2rem,4.4vw,3.4rem)] font-normal leading-[1.02] tracking-[-0.03em]">
+              Built by the person you hire.
+            </h2>
+          </div>
+          <div class="max-w-[46ch] space-y-4 self-end text-[14px] leading-[1.55] text-ink-700 sm:text-[15px] lg:col-span-5">
+            <p>
+              I'm an independent developer based in Bakersfield. I build websites and business software for small businesses and nonprofits, and I do the work myself.
             </p>
-          )
-        }
+            <p>
+              You work directly with the person designing, building, and supporting your project. No account managers, no handoffs, no team you never meet.
+            </p>
+            <p>
+              I care about software that earns its place: it should remove a repetitive task, make information easier to find, or help customers reach you.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="mx-auto mt-20 max-w-[1080px] px-6 sm:mt-28 sm:px-10">
+        <div class="border-t border-line pt-4">
+          <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">Contact</p>
+          <div class="mt-8 grid gap-10 lg:grid-cols-12 lg:gap-8">
+            <h2 class="max-w-[11ch] text-[clamp(2.5rem,6vw,4.4rem)] font-normal leading-[0.98] tracking-[-0.025em] lg:col-span-7">
+              Tell me what you need.
+            </h2>
+            <div class="max-w-[32ch] lg:col-span-5 lg:pt-1">
+              <p class="text-[13px] leading-[1.6] text-ink-700 sm:text-[14px]">
+                Describe your business, what you want to build, and what's difficult about your current process. Not sure what you need? That's fine too.
+              </p>
+
+              {
+                email ? (
+                  <div class="mt-10">
+                    <a
+                      href={mailto}
+                      class="inline-flex items-center gap-4 rounded-full border border-ink-950 py-1 pl-5 pr-1 text-[12px] font-medium hover:bg-ink-950 hover:text-paper"
+                    >
+                      Email about a project
+                      <span class="flex h-8 w-8 items-center justify-center rounded-full bg-paper text-[13px] text-ink-950" aria-hidden="true">
+                        ↗
+                      </span>
+                    </a>
+                    <p class="mt-4 text-[12px] text-ink-500">
+                      Or write to <a href={mailto} class="text-ink-700 underline underline-offset-4">{email}</a>.
+                    </p>
+                  </div>
+                ) : (
+                  <p class="mt-10 font-mono text-[9px] uppercase tracking-[0.12em] text-ink-700 sm:text-[10px]">
+                    {site.inquiriesNote}
+                  </p>
+                )
+              }
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer class="border-t border-line">
-    <div class="mx-auto max-w-5xl space-y-1 px-5 py-8 text-sm text-ink-500 sm:px-8">
+  <footer class="mt-20 border-t border-line sm:mt-24">
+    <div class="mx-auto flex max-w-[1080px] flex-col gap-2 px-6 py-6 font-mono text-[9px] uppercase tracking-[0.1em] text-ink-500 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:text-[10px]">
       <p>{site.name} · {site.location}</p>
       <p>Operated by {site.operator}.</p>
     </div>

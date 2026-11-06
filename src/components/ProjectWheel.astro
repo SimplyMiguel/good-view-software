@@ -1,0 +1,357 @@
+---
+const projects = [
+  {
+    id: "website",
+    number: "001",
+    title: "Website",
+    kind: "Marketing site",
+    detail: "Explains what you do and turns visitors into inquiries.",
+  },
+  {
+    id: "portal",
+    number: "002",
+    title: "Client portal",
+    kind: "Dashboard",
+    detail: "Invoices, jobs, and reports in one private place.",
+  },
+  {
+    id: "store",
+    number: "003",
+    title: "Online store",
+    kind: "Commerce",
+    detail: "Shopify or custom storefronts that are simple to run.",
+  },
+  {
+    id: "viewer",
+    number: "004",
+    title: "3D viewer",
+    kind: "Interactive product",
+    detail: "Let customers rotate, configure, and inspect a product.",
+  },
+  {
+    id: "mobile",
+    number: "005",
+    title: "Mobile app",
+    kind: "iOS · Android",
+    detail: "Booking, ordering, or field tools in your customers' pockets.",
+  },
+];
+---
+
+<section id="projects" aria-labelledby="projects-heading">
+  <div class="mx-auto mt-20 max-w-[1080px] px-6 sm:mt-28 sm:px-10">
+    <div class="flex items-end justify-between border-t border-line pt-3">
+      <h2 id="projects-heading" class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">
+        Project previews
+      </h2>
+      <p class="font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">001—005</p>
+    </div>
+
+    <div class="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.62fr)_minmax(0,1fr)] lg:gap-12">
+      <div>
+        <div class="flex aspect-[4/3] flex-col bg-ink-950 p-3 sm:p-5" aria-live="polite">
+          <div class="flex items-center justify-between pb-3 font-mono text-[7px] uppercase tracking-[0.12em] text-paper/40 sm:text-[8px]">
+            <span>Concept preview</span>
+            <span>Not client work</span>
+          </div>
+
+          <div class="min-h-0 flex-1">
+            <div data-project-preview="website" class="h-full">
+              <div class="flex h-full flex-col overflow-hidden bg-paper">
+                <div class="flex items-center justify-between border-b border-line px-4 py-2.5 font-mono text-[7px] uppercase tracking-[0.12em] text-ink-500">
+                  <span>Harvest &amp; Co.</span>
+                  <span class="flex gap-3"><span>Shop</span><span>Story</span><span>Menu</span></span>
+                </div>
+                <div class="grid flex-1 grid-cols-2">
+                  <div class="flex flex-col justify-center p-4 sm:p-8">
+                    <p class="font-mono text-[7px] uppercase tracking-[0.12em] text-ink-500">Bakersfield, CA</p>
+                    <p class="mt-3 text-[15px] leading-[1.08] tracking-[-0.02em] sm:text-[23px]">
+                      Local produce,<br />delivered weekly.
+                    </p>
+                    <span class="mt-4 inline-block w-fit border border-ink-950 px-2.5 py-1 font-mono text-[7px] uppercase tracking-[0.1em] sm:mt-5">
+                      Order now
+                    </span>
+                  </div>
+                  <div class="relative m-3 overflow-hidden bg-[#deded6]">
+                    <div class="absolute left-1/2 top-1/2 h-[62%] w-[46%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-ink-500/40"></div>
+                    <div class="absolute bottom-0 left-0 right-0 h-1/3 bg-[#d2d2c9]"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div data-project-preview="portal" class="h-full" hidden>
+              <div class="flex h-full overflow-hidden bg-paper">
+                <div class="flex w-12 shrink-0 flex-col gap-4 border-r border-line p-3 sm:w-16">
+                  <span class="h-2.5 w-2.5 rounded-full bg-ink-950"></span>
+                  <div class="mt-3 space-y-2.5">
+                    <span class="block h-1 w-full bg-ink-950"></span>
+                    <span class="block h-1 w-4/5 bg-ink-500/30"></span>
+                    <span class="block h-1 w-3/5 bg-ink-500/30"></span>
+                    <span class="block h-1 w-4/5 bg-ink-500/30"></span>
+                  </div>
+                </div>
+                <div class="min-w-0 flex-1 p-4 sm:p-6">
+                  <div class="flex items-center justify-between">
+                    <p class="text-[11px] tracking-[-0.01em] sm:text-[13px]">Overview</p>
+                    <span class="border border-line px-2 py-1 font-mono text-[6px] uppercase tracking-[0.1em] text-ink-500">This month</span>
+                  </div>
+                  <div class="mt-4 grid grid-cols-3 gap-2">
+                    <div class="border border-line p-2.5">
+                      <p class="font-mono text-[6px] uppercase tracking-[0.1em] text-ink-500">Open</p>
+                      <p class="mt-1.5 text-[14px] leading-none sm:text-[17px]">24</p>
+                    </div>
+                    <div class="border border-line p-2.5">
+                      <p class="font-mono text-[6px] uppercase tracking-[0.1em] text-ink-500">Paid</p>
+                      <p class="mt-1.5 text-[14px] leading-none sm:text-[17px]">18</p>
+                    </div>
+                    <div class="border border-line p-2.5">
+                      <p class="font-mono text-[6px] uppercase tracking-[0.1em] text-ink-500">Overdue</p>
+                      <p class="mt-1.5 text-[14px] leading-none sm:text-[17px]">2</p>
+                    </div>
+                  </div>
+                  <div class="mt-4 flex h-[34%] items-end gap-1.5 border-b border-line pb-1">
+                    <span class="w-full bg-[#cfcfc6]" style="height:38%"></span>
+                    <span class="w-full bg-[#cfcfc6]" style="height:56%"></span>
+                    <span class="w-full bg-[#cfcfc6]" style="height:44%"></span>
+                    <span class="w-full bg-ink-950" style="height:72%"></span>
+                    <span class="w-full bg-[#cfcfc6]" style="height:58%"></span>
+                    <span class="w-full bg-[#cfcfc6]" style="height:84%"></span>
+                    <span class="w-full bg-[#cfcfc6]" style="height:66%"></span>
+                  </div>
+                  <div class="mt-3 space-y-2">
+                    <div class="flex justify-between border-b border-line pb-1.5 font-mono text-[6px] text-ink-500">
+                      <span>INV-1042</span><span>Riverbend Co.</span><span>Paid</span>
+                    </div>
+                    <div class="flex justify-between border-b border-line pb-1.5 font-mono text-[6px] text-ink-500">
+                      <span>INV-1043</span><span>Oak &amp; Pine</span><span>Sent</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div data-project-preview="store" class="h-full" hidden>
+              <div class="flex h-full flex-col overflow-hidden bg-paper">
+                <div class="flex items-center justify-between border-b border-line px-4 py-2.5 font-mono text-[7px] uppercase tracking-[0.12em] text-ink-500">
+                  <span>Field Supply</span>
+                  <span>Cart (2)</span>
+                </div>
+                <div class="flex-1 p-4 sm:p-6">
+                  <div class="grid h-[58%] grid-cols-3 gap-2.5">
+                    <div class="flex flex-col justify-between bg-[#edede7] p-2">
+                      <div class="mx-auto mt-2 h-14 w-14 rounded-full border border-ink-500/40"></div>
+                      <div class="flex justify-between font-mono text-[6px] text-ink-500"><span>Canvas tote</span><span>$28</span></div>
+                    </div>
+                    <div class="flex flex-col justify-between bg-[#edede7] p-2">
+                      <div class="mx-auto mt-3 h-12 w-12 border border-ink-500/40"></div>
+                      <div class="flex justify-between font-mono text-[6px] text-ink-500"><span>Field cap</span><span>$34</span></div>
+                    </div>
+                    <div class="flex flex-col justify-between bg-[#edede7] p-2">
+                      <div class="mx-auto mt-3 h-14 w-10 rounded-t-full border border-ink-500/40"></div>
+                      <div class="flex justify-between font-mono text-[6px] text-ink-500"><span>Bottle</span><span>$22</span></div>
+                    </div>
+                  </div>
+                  <div class="mt-4 flex items-end justify-between border-t border-line pt-3">
+                    <div>
+                      <p class="text-[13px] tracking-[-0.01em] sm:text-[15px]">Everyday goods.</p>
+                      <p class="mt-1 font-mono text-[7px] uppercase tracking-[0.1em] text-ink-500">Free shipping over $75</p>
+                    </div>
+                    <span class="border border-ink-950 px-2.5 py-1 font-mono text-[7px] uppercase tracking-[0.1em]">Shop all</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div data-project-preview="viewer" class="h-full" hidden>
+              <div class="flex h-full flex-col overflow-hidden border border-white/10 bg-[#1d1d1b] text-paper">
+                <div class="flex items-center justify-between px-4 py-2.5 font-mono text-[7px] uppercase tracking-[0.12em] text-paper/40">
+                  <span>Product viewer</span>
+                  <span>Configurator</span>
+                </div>
+                <div class="relative flex flex-1 items-center justify-center">
+                  <svg viewBox="0 0 180 150" class="h-[82%] w-auto" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
+                    <g class="text-paper/70">
+                      <path d="M90 22l48 27v54l-48 27-48-27V49z" />
+                      <path d="M90 22v56m0 0v52m0-52l48-27m-48 27L42 49" stroke-dasharray="2 4" />
+                      <circle cx="90" cy="78" r="3" fill="currentColor" />
+                    </g>
+                  </svg>
+                  <p class="absolute bottom-2 left-4 font-mono text-[6px] uppercase tracking-[0.12em] text-paper/40">
+                    Drag to rotate · Scroll to zoom
+                  </p>
+                </div>
+                <div class="flex items-center justify-between border-t border-white/10 px-4 py-3">
+                  <div class="flex gap-2">
+                    <span class="h-3.5 w-3.5 rounded-full border border-white/30 bg-[#b9b9ae]"></span>
+                    <span class="h-3.5 w-3.5 rounded-full border border-white/30 bg-[#6f6f66]"></span>
+                    <span class="h-3.5 w-3.5 rounded-full border border-white/30 bg-[#2f2f2c]"></span>
+                  </div>
+                  <span class="border border-white/30 px-2.5 py-1 font-mono text-[7px] uppercase tracking-[0.1em]">Add to cart</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+            <div data-project-preview="mobile" class="flex h-full items-center justify-center" hidden>
+              <div class="flex h-[94%] aspect-[9/18] flex-col overflow-hidden rounded-[20px] border border-white/25 bg-paper p-1.5">
+                <div class="flex h-full flex-col overflow-hidden rounded-[14px] border border-line">
+                  <div class="flex items-center justify-between px-3 pb-2 pt-2.5">
+                    <span class="font-mono text-[5px] uppercase tracking-[0.14em] text-ink-500">9:41</span>
+                    <span class="h-1 w-8 rounded-full bg-ink-950/20"></span>
+                    <span class="font-mono text-[5px] text-ink-500">100%</span>
+                  </div>
+                  <div class="flex-1 px-3">
+                    <p class="font-mono text-[5px] uppercase tracking-[0.14em] text-ink-500">Valley Fitness</p>
+                    <p class="mt-2 text-[10px] leading-[1.05] tracking-[-0.02em] sm:text-[12px]">Book your<br />next class.</p>
+                    <div class="mt-3 space-y-1.5">
+                      <div class="flex items-center justify-between border border-line px-2 py-1.5">
+                        <span class="text-[6px]">Strength · 6am</span>
+                        <span class="font-mono text-[5px] text-ink-500">Book</span>
+                      </div>
+                      <div class="flex items-center justify-between border border-line px-2 py-1.5">
+                        <span class="text-[6px]">Mobility · 9am</span>
+                        <span class="font-mono text-[5px] text-ink-500">Book</span>
+                      </div>
+                      <div class="flex items-center justify-between bg-ink-950 px-2 py-1.5 text-paper">
+                        <span class="text-[6px]">Spin · 12pm</span>
+                        <span class="font-mono text-[5px] text-paper/60">Full</span>
+                      </div>
+                    </div>
+                    <div class="mt-3 h-10 bg-[#e6e6df]"></div>
+                  </div>
+                  <div class="flex items-center justify-around border-t border-line py-2 font-mono text-[5px] uppercase tracking-[0.1em] text-ink-500">
+                    <span class="text-ink-950">Today</span><span>Schedule</span><span>Account</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+        <p class="mt-3 max-w-[56ch] text-[11px] leading-[1.5] text-ink-500">
+          Illustrative previews of project types, not client work.
+        </p>
+      </div>
+
+      <div class="flex flex-col lg:pt-1">
+        <p class="pb-3 font-mono text-[9px] uppercase tracking-[0.14em] text-ink-500 sm:text-[10px]">Select a project</p>
+
+        <div class="relative">
+          <div
+            data-project-wheel
+            role="listbox"
+            aria-label="Project previews"
+            tabindex="0"
+            class="project-wheel h-[304px] overflow-y-auto py-[114px] outline-offset-4 sm:h-[380px] sm:py-[152px]"
+          >
+            {
+              projects.map((project, index) => (
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={index === 0 ? "true" : "false"}
+                  data-project-option={project.id}
+                  data-active={index === 0 ? "true" : "false"}
+                  class="group block h-[76px] w-full border-t border-line pt-2.5 text-left text-[#c4c4bc] data-[active=true]:border-ink-950 data-[active=true]:text-ink-950"
+                >
+                  <span class="flex items-baseline justify-between gap-4">
+                    <span class="text-[26px] leading-[1.1] tracking-[-0.025em] sm:text-[30px]">{project.title}</span>
+                    <span class="font-mono text-[9px] tracking-[0.12em]">{project.number}</span>
+                  </span>
+                  <span class="mt-1 block truncate text-[11px] text-ink-700 opacity-0 group-data-[active=true]:opacity-100">
+                    {project.detail}
+                  </span>
+                </button>
+              ))
+            }
+          </div>
+          <div class="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-paper to-transparent"></div>
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-paper to-transparent"></div>
+        </div>
+
+        <p class="pt-3 text-[11px] leading-[1.5] text-ink-500">
+          Scroll, use arrow keys, or click a project.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const wheel = document.querySelector<HTMLElement>("[data-project-wheel]");
+  if (wheel) {
+    const options = Array.from(wheel.querySelectorAll<HTMLButtonElement>("[data-project-option]"));
+    const previews = Array.from(document.querySelectorAll<HTMLElement>("[data-project-preview]"));
+    let frame = 0;
+    let current = "website";
+
+    const activate = (id: string) => {
+      if (id === current) return;
+      current = id;
+      for (const preview of previews) {
+        preview.hidden = preview.dataset.projectPreview !== id;
+      }
+      for (const option of options) {
+        const active = option.dataset.projectOption === id;
+        option.dataset.active = String(active);
+        option.setAttribute("aria-selected", String(active));
+      }
+    };
+
+    const centerOption = (option: HTMLElement) => {
+      wheel.scrollTop = option.offsetTop - (wheel.clientHeight - option.offsetHeight) / 2;
+    };
+
+    const nearest = () => {
+      const midpoint = wheel.scrollTop + wheel.clientHeight / 2;
+      let best = options[0];
+      let distance = Number.POSITIVE_INFINITY;
+      for (const option of options) {
+        const next = Math.abs(option.offsetTop + option.offsetHeight / 2 - midpoint);
+        if (next < distance) {
+          distance = next;
+          best = option;
+        }
+      }
+      if (best) activate(best.dataset.projectOption as string);
+    };
+
+    wheel.addEventListener(
+      "scroll",
+      () => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(nearest);
+      },
+      { passive: true },
+    );
+
+    for (const option of options) {
+      option.addEventListener("click", () => {
+        centerOption(option);
+        activate(option.dataset.projectOption as string);
+      });
+    }
+
+    wheel.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+      event.preventDefault();
+      const index = options.findIndex((option) => option.dataset.projectOption === current);
+      const next = Math.min(options.length - 1, Math.max(0, index + (event.key === "ArrowDown" ? 1 : -1)));
+      options[next].focus({ preventScroll: true });
+      centerOption(options[next]);
+      activate(options[next].dataset.projectOption as string);
+    });
+
+    wheel.scrollTop = 0;
+    nearest();
+  }
+</script>
+
+<style>
+  .project-wheel {
+    scrollbar-width: none;
+  }
+
+  .project-wheel::-webkit-scrollbar {
+    display: none;
+  }
+</style>
