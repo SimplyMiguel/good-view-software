@@ -1,12 +1,13 @@
 ---
 /**
- * Hero easter egg: a pixel fighter walks in from the right, stops, turns to face
+ * Hero easter egg: a pixel-art guy walks in from the right, stops, turns to face
  * you, looks at the camera, lifts his phone, then pushes it at the lens. Only
  * plays at the top of the page: scrolling away hides him, scrolling back replays.
  * Decorative only — hidden from assistive tech and mobile.
  *
- * Frames are built by art/build-walker.py from art/base-sprite.png (35x47) and
- * shown at 3x from lg up and 2x below it, so he always clears the hero card.
+ * Frames are built by art/build-walker.py from the hoodie walk video at full
+ * resolution (240x444), keyed and baseline-aligned. Displayed smaller via CSS
+ * with smooth scaling to preserve facial detail.
  * The walk/beat timing lives in the script below.
  */
 const FRAMES = ["walk1", "walk2", "walk3", "walk4", "turn", "front", "raise", "phone"] as const;
@@ -23,8 +24,8 @@ const FRAMES = ["walk1", "walk2", "walk3", "walk4", "turn", "front", "raise", "p
         <img
           data-frame={name}
           src={`/images/walker/${name}.png`}
-          width="105"
-          height="141"
+          width="240"
+          height="442"
           alt=""
           decoding="async"
           class="walker-frame"
@@ -52,15 +53,15 @@ const FRAMES = ["walk1", "walk2", "walk3", "walk4", "turn", "front", "raise", "p
 
   .walker-frame {
     display: none;
-    width: 70px;
-    height: 94px;
-    image-rendering: pixelated;
+    width: 86px;
+    height: 160px;
+    image-rendering: auto;
   }
 
   @media (min-width: 1024px) {
     .walker-frame {
-      width: 105px;
-      height: 141px;
+      width: 108px;
+      height: 200px;
     }
   }
 
@@ -72,7 +73,7 @@ const FRAMES = ["walk1", "walk2", "walk3", "walk4", "turn", "front", "raise", "p
     --px: 2px;
     position: absolute;
     bottom: calc(100% - 2px);
-    left: -28px;
+    left: 0px;
     padding: 4px 7px 5px;
     background: var(--color-white, #fff);
     color: var(--color-ink-950, #0b0b0b);
@@ -159,7 +160,7 @@ const FRAMES = ["walk1", "walk2", "walk3", "walk4", "turn", "front", "raise", "p
       const heroRect = hero.getBoundingClientRect();
       heroWidth = heroRect.width;
       const cardRight = card ? card.getBoundingClientRect().right - heroRect.left : 0;
-      const width = root.getBoundingClientRect().width || 105;
+      const width = root.getBoundingClientRect().width || 108;
       xStop = Math.min(heroWidth - 12, Math.max(heroWidth * 0.68, cardRight + 24 + width));
     };
 
