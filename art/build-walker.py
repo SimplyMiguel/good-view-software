@@ -1,215 +1,310 @@
-"""Build the hero walker frames from art/base-sprite.png.
+"""Build the hero walker frames from video frames.
 
-base-sprite.png is a 31x43 fighting-stance sprite (placeholder cloned from a
-reference sheet; to be redrawn). It faces LEFT, the direction he walks.
+Extracts frames from the hoodie walk video, keys out the magenta background,
+registers/aligns them, and downscales to pixel art (35x47).
 
-Frames (all 35x47):
-  walk1-4  the stance with legs shifted and a body bob
-  turn     the stance's own pose, body squaring up (the 0.28s beat before front)
-  front    symmetric body, Ryu's own hair and headband, front-facing face
-  raise    phone lifted in the near fist, normal size
-  phone    phone pushed at the camera, about 1.4x, as if zoomed in
+Frames:
+  walk1-4  looping walk cycle
+  turn     half-turn from side to front
+  front    front-facing without phone
+  raise    phone being raised
+  phone    phone held up showing screen
 
-    python3 art/build-walker.py   # needs Pillow; writes public/images/walker/*.png
+    python3 art/build-walker.py   # needs Pillow, numpy; writes public/images/walker/*.png
 """
 
 import os
-
+import numpy as np
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "public", "images", "walker")
+WORK = "/tmp/walker-work"
 
-PAD = 2
-LEG_TOP = 31  # rows >= this are separate legs
-SPLIT_X = 16  # x <= SPLIT_X is the left leg, x > SPLIT_X the right leg
-AXIS = 15  # mirror axis (base coords) for the camera-facing pose
+# Source video frames (extracted with ffmpeg)
+# Walk cycle in first ~100 frames, turn ~100-120, front ~120, raise ~125-140, phone ~140+
 
-# (left dx, left dy, right dx, right dy, body dy)
-WALK = [
-    (-1, 0, 1, 0, 0),    # contact, legs wide
-    (2, 0, -2, -2, -1),  # passing, right foot lifted
-    (-2, 0, 2, 0, 0),    # contact, other stride
-    (2, -2, -2, 0, -1),  # passing, left foot lifted
-]
-
-PHONE = [
-    "kkkkkk",
-    "kPPPPk",
-    "kPwwPk",
-    "kPwPQk",
-    "kPPPQk",
-    "kPPQQk",
-    "kPPQQk",
-    "kQQQQk",
-    "kkkkkk",
-    "kkkkkk",
-]
-def phone_rows(w, h):
-    """Phone sprite w x h: black bezel, light screen shading to blue, glare top-left."""
-    rows = ["k" * w]
-    for y in range(h - 3):
-        mid = ""
-        for x in range(w - 2):
-            glare = (y == 0 and x < 3) or (y == 1 and x < 1)
-            if glare:
-                mid += "w"
-            elif x + y * 0.5 > (w - 2) * 0.9 or y > (h - 3) * 0.7:
-                mid += "Q"
-            else:
-                mid += "P"
-        rows.append("k" + mid + "k")
-    rows += ["k" * w, "k" * w]
-    return rows
-
-
-PHONE_BIG = phone_rows(8, 14)
-COLOURS = {
-    "k": (28, 20, 34),
-    "P": (127, 211, 255),
-    "Q": (47, 134, 201),
-    "w": (255, 255, 255),
-    "e": (28, 20, 34),  # pupil
-    "m": (140, 70, 80),  # mouth
+# Frame selections (carefully chosen for distinct poses)
+FRAME_MAP = {
+    "walk1": "frame_0001.png",  # contact, legs apart
+    "walk2": "frame_0010.png",  # passing, right foot lifting
+    "walk3": "frame_0020.png",  # mid-stride forward
+    "walk4": "frame_0030.png",  # other stride
+    "turn": "frame_0115.png",   # 3/4 turn toward camera
+    "front": "frame_0120.png",  # full front facing
+    "raise": "frame_0130.png",  # phone being raised
+    "phone": "frame_0160.png",  # phone held up to viewer
 }
 
+# Target size (match original Ryu frames)
+TARGET_W, TARGET_H = 35, 47
 
-def canvas(w, h):
-    return Image.new("RGBA", (w, h), (0, 0, 0, 0))
-
-
-def compose(base, left, right, body_dy):
-    w, h = base.width + PAD * 2, base.height + PAD * 2
-    px = base.load()
-    out = canvas(w, h)
-    op = out.load()
-    ldx, ldy = left
-    rdx, rdy = right
-    for y in range(base.height):
-        for x in range(base.width):
-            p = px[x, y]
-            if p[3] == 0:
-                continue
-            if y < LEG_TOP:
-                dx, dy = 0, body_dy
-            elif x <= SPLIT_X:
-                dx, dy = ldx, ldy
-            else:
-                dx, dy = rdx, rdy
-            tx, ty = x + PAD + dx, y + PAD + dy
-            if 0 <= tx < w and 0 <= ty < h:
-                op[tx, ty] = p
-    # close the gap a body bob leaves above the legs
-    if body_dy:
-        for x in range(w):
-            above = op[x, PAD + LEG_TOP - 1 + body_dy]
-            below = op[x, PAD + LEG_TOP + body_dy + 1]
-            if above[3] and not op[x, PAD + LEG_TOP + body_dy][3] and below[3]:
-                op[x, PAD + LEG_TOP + body_dy] = above
-    return out
+# Magenta background color (RGB)
+MAGENTA_R, MAGENTA_G, MAGENTA_B = 255, 0, 144
+MAGENTA_TOLERANCE = 45
 
 
-def mirrored(base):
-    """Left half of the stance plus its mirror image: a camera-facing body."""
-    out = canvas(base.width + PAD * 2, base.height + PAD * 2)
-    left = base.crop((0, 0, AXIS + 1, base.height))
-    out.alpha_composite(left, (PAD, PAD))
-    right = left.transpose(Image.FLIP_LEFT_RIGHT).crop((0, 0, left.width - 1, base.height))
-    out.alpha_composite(right, (PAD + AXIS + 1, PAD))
-    return out
+def rgb_to_hsv(r, g, b):
+    """Convert RGB arrays to HSV."""
+    r, g, b = r / 255.0, g / 255.0, b / 255.0
+    maxc = np.maximum(np.maximum(r, g), b)
+    minc = np.minimum(np.minimum(r, g), b)
+    v = maxc
+    s = np.where(maxc != 0, (maxc - minc) / maxc, 0)
+    
+    rc = np.where(maxc != minc, (maxc - r) / (maxc - minc), 0)
+    gc = np.where(maxc != minc, (maxc - g) / (maxc - minc), 0)
+    bc = np.where(maxc != minc, (maxc - b) / (maxc - minc), 0)
+    
+    h = np.where(r == maxc, bc - gc, np.where(g == maxc, 2.0 + rc - bc, 4.0 + gc - rc))
+    h = (h / 6.0) % 1.0
+    
+    return h * 360, s * 100, v * 100
 
 
-def paint(img, pixels):
-    for (x, y), key in pixels.items():
-        img.putpixel((x, y), COLOURS[key] + (255,))
+def key_magenta(img):
+    """Remove magenta background using HSV-based chroma key."""
+    arr = np.array(img.convert("RGB")).astype(np.float32)
+    r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
+    
+    # Convert to HSV
+    h, s, v = rgb_to_hsv(r, g, b)
+    
+    # Magenta hue is around 300-330 degrees (pink/magenta range)
+    # The background is approximately (255, 0, 144) which is ~326 degrees
+    is_magenta_hue = ((h > 300) | (h < 20)) & (s > 50) & (v > 40)
+    
+    # Also catch very saturated pink/magenta regardless of exact hue
+    is_saturated_pink = (r > 200) & (g < 120) & (b > 80) & (s > 40)
+    
+    # Combined mask
+    bg_mask = is_magenta_hue | is_saturated_pink
+    
+    # Create RGBA
+    rgba = np.zeros((arr.shape[0], arr.shape[1], 4), dtype=np.uint8)
+    rgba[:, :, :3] = arr.astype(np.uint8)
+    rgba[:, :, 3] = np.where(bg_mask, 0, 255).astype(np.uint8)
+    
+    # Erode slightly to remove edge artifacts (1px border removal)
+    alpha = rgba[:, :, 3]
+    eroded = np.zeros_like(alpha)
+    for y in range(1, alpha.shape[0] - 1):
+        for x in range(1, alpha.shape[1] - 1):
+            # Keep pixel only if all 4-neighbors are also opaque
+            if alpha[y, x] > 0:
+                neighbors = [alpha[y-1, x], alpha[y+1, x], alpha[y, x-1], alpha[y, x+1]]
+                if all(n > 0 for n in neighbors):
+                    eroded[y, x] = 255
+    
+    # But this is too aggressive, so dilate back
+    dilated = np.copy(eroded)
+    for y in range(1, eroded.shape[0] - 1):
+        for x in range(1, eroded.shape[1] - 1):
+            if eroded[y, x] == 0:
+                neighbors = [eroded[y-1, x], eroded[y+1, x], eroded[y, x-1], eroded[y, x+1]]
+                if any(n > 0 for n in neighbors) and alpha[y, x] > 0:
+                    # Re-add if it was originally opaque and has opaque neighbor
+                    dilated[y, x] = 255
+    
+    rgba[:, :, 3] = dilated
+    
+    return Image.fromarray(rgba, "RGBA")
 
 
-# Front view: Ryu's own spiky hair and headband (top rows of the original
-# sprite) over a hand-drawn front-facing face. Drawing new hair made him look
-# generic; the hair and headband are what make him read as Ryu.
-HAIR_ROWS = 12  # padded rows kept from the original sprite
-FACE_X, FACE_Y = 12, 12  # 12-wide face, centred on the 35px frame (x=17.5)
-# Left half of the face; the right half is its mirror image.
-FACE_LEFT = [
-    "accooo",  # brows
-    "acwkwc",  # eye: white, pupil, white -- pupil centred, so he looks at you
-    "eccccl",  # cheeks
-    ".eccco",  # mouth
-    "..eccc",  # chin
-]
-FACE_COLOURS = {
-    "a": (101, 57, 78), "c": (245, 183, 161), "e": (180, 110, 129),
-    "l": (185, 102, 119), "o": (70, 37, 59), "k": (70, 37, 59), "w": (254, 253, 254),
-}
+def get_bbox(img):
+    """Get bounding box of non-transparent pixels."""
+    arr = np.array(img)
+    alpha = arr[:, :, 3]
+    rows = np.any(alpha > 0, axis=1)
+    cols = np.any(alpha > 0, axis=0)
+    if not np.any(rows) or not np.any(cols):
+        return (0, 0, img.width, img.height)
+    y_min, y_max = np.where(rows)[0][[0, -1]]
+    x_min, x_max = np.where(cols)[0][[0, -1]]
+    return (x_min, y_min, x_max + 1, y_max + 1)
 
 
-def front_face():
-    img = canvas(12, len(FACE_LEFT))
-    for y, left in enumerate(FACE_LEFT):
-        for x, ch in enumerate(left + left[::-1]):
-            if ch != ".":
-                img.putpixel((x, y), FACE_COLOURS[ch] + (255,))
-    return img
+def crop_and_center(img, ref_bbox=None):
+    """Crop to content and center on canvas."""
+    bbox = get_bbox(img)
+    cropped = img.crop(bbox)
+    return cropped, bbox
 
 
-def facing_camera(base):
-    """Symmetric body, Ryu's own hair and headband, and a front-facing face."""
-    body = mirrored(base)
-    for y in range(FACE_Y + len(FACE_LEFT)):
-        for x in range(body.width):
-            body.putpixel((x, y), (0, 0, 0, 0))
-    hair = compose(base, (0, 0), (0, 0), 0).crop((0, 0, body.width, HAIR_ROWS))
-    body.alpha_composite(hair, (0, 0))
-    body.alpha_composite(front_face(), (FACE_X, FACE_Y))
-    return body
+def find_registration_point(img):
+    """Find a stable registration point: bottom center of sprite feet."""
+    arr = np.array(img)
+    alpha = arr[:, :, 3]
+    
+    # Find bottom row with content
+    rows = np.any(alpha > 0, axis=1)
+    if not np.any(rows):
+        return img.width // 2, img.height
+    
+    bottom_row = np.where(rows)[0][-1]
+    
+    # Find center of content in that row
+    cols = np.where(alpha[bottom_row, :] > 0)[0]
+    if len(cols) == 0:
+        return img.width // 2, bottom_row
+    
+    center_x = (cols[0] + cols[-1]) // 2
+    return center_x, bottom_row
 
 
-def stamp_phone(img, rows, x0, y0, grip_from):
-    """Draw a phone, then redraw the glove over its lower rows so the fist grips it."""
-    out = img.copy()
-    op = out.load()
-    src = img.load()
-    for dy, row in enumerate(rows):
-        for dx, ch in enumerate(row):
-            op[x0 + dx, y0 + dy] = COLOURS[ch] + (255,)
-    for y in range(y0 + grip_from, y0 + len(rows)):
-        for x in range(x0 - 1, x0 + len(rows[0]) + 1):
-            p = src[x, y]
-            if p[3] and p[0] > 150 and p[1] < 120:
-                op[x, y] = p
-    return out
+def align_frames(frames_dict):
+    """Align all frames by their registration points (feet)."""
+    # Get registration points and bounding boxes
+    reg_points = {}
+    bboxes = {}
+    
+    for name, img in frames_dict.items():
+        keyed = key_magenta(img)
+        reg_points[name] = find_registration_point(keyed)
+        bboxes[name] = get_bbox(keyed)
+        frames_dict[name] = keyed
+    
+    # Find the maximum extent needed
+    max_width = 0
+    max_above_feet = 0
+    max_below_feet = 0
+    
+    for name, (reg_x, reg_y) in reg_points.items():
+        bbox = bboxes[name]
+        sprite_w = bbox[2] - bbox[0]
+        max_width = max(max_width, sprite_w)
+        
+        # Distance from top of sprite to feet
+        above = reg_y - bbox[1]
+        max_above_feet = max(max_above_feet, above)
+        
+        # Distance from feet to bottom of sprite (usually small)
+        below = bbox[3] - reg_y
+        max_below_feet = max(max_below_feet, below)
+    
+    canvas_height = max_above_feet + max_below_feet + 4
+    canvas_width = max_width + 4
+    
+    # Center each sprite on canvas using registration point
+    aligned = {}
+    for name, img in frames_dict.items():
+        bbox = bboxes[name]
+        reg_x, reg_y = reg_points[name]
+        
+        canvas = Image.new("RGBA", (canvas_width, canvas_height), (0, 0, 0, 0))
+        
+        # Place sprite so feet are at bottom center
+        sprite = img.crop(bbox)
+        sprite_reg_x = reg_x - bbox[0]
+        sprite_reg_y = reg_y - bbox[1]
+        
+        paste_x = (canvas_width // 2) - sprite_reg_x
+        paste_y = (canvas_height - max_below_feet - 2) - sprite_reg_y
+        
+        canvas.paste(sprite, (paste_x, paste_y), sprite)
+        aligned[name] = canvas
+    
+    return aligned
 
 
-def raised_phone(img):
-    """Normal-size phone lifted in the near fist."""
-    return stamp_phone(img, PHONE, 5, 14, 6)
+def reduce_colors(img, num_colors=32):
+    """Reduce to a limited palette for pixel art look."""
+    if img.mode != "RGBA":
+        img = img.convert("RGBA")
+    
+    # Separate alpha channel
+    r, g, b, a = img.split()
+    rgb = Image.merge("RGB", (r, g, b))
+    
+    # Quantize RGB
+    quantized = rgb.quantize(colors=num_colors, method=Image.Quantize.MEDIANCUT)
+    quantized = quantized.convert("RGB")
+    
+    # Restore alpha
+    result = Image.merge("RGBA", (*quantized.split(), a))
+    return result
 
 
-def zoomed_phone(img):
-    """Phone pushed toward the camera: about 1.4x the size, as if the lens zoomed in."""
-    return stamp_phone(img, PHONE_BIG, 3, 11, 8)
+def downscale_pixelart(img, target_w, target_h):
+    """Downscale using nearest-neighbor for crisp pixel art."""
+    # First, find actual content bounds
+    bbox = get_bbox(img)
+    content_w = bbox[2] - bbox[0]
+    content_h = bbox[3] - bbox[1]
+    
+    # Calculate scale to fit in target while preserving aspect ratio
+    # Leave a little padding
+    usable_w = target_w - 2
+    usable_h = target_h - 2
+    
+    scale = min(usable_w / content_w, usable_h / content_h)
+    
+    new_w = max(1, int(content_w * scale))
+    new_h = max(1, int(content_h * scale))
+    
+    # Crop to content, downscale, then place on target canvas
+    cropped = img.crop(bbox)
+    scaled = cropped.resize((new_w, new_h), Image.Resampling.NEAREST)
+    
+    # Reduce colors
+    scaled = reduce_colors(scaled, num_colors=24)
+    
+    # Center on target canvas
+    result = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
+    paste_x = (target_w - new_w) // 2
+    paste_y = target_h - new_h - 1  # Align to bottom
+    result.paste(scaled, (paste_x, paste_y), scaled)
+    
+    return result
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    base = Image.open(os.path.join(HERE, "base-sprite.png")).convert("RGBA")
-    frames = {}
-    for i, (ldx, ldy, rdx, rdy, bdy) in enumerate(WALK):
-        frames["walk%d" % (i + 1)] = compose(base, (ldx, ldy), (rdx, rdy), bdy)
-    frames["turn"] = compose(base, (0, 0), (0, 0), 0)
-    frames["front"] = facing_camera(base)
-    frames["raise"] = raised_phone(frames["front"])
-    frames["phone"] = zoomed_phone(frames["front"])
-    for name, img in frames.items():
-        img.save(os.path.join(OUT, name + ".png"))
-
+    
+    # Check if frame extraction has been done
+    if not os.path.exists(WORK):
+        print("Error: Run 'ffmpeg -i uploads/hoodie-walk-b_*.mp4 -vsync 0 /tmp/walker-work/frame_%04d.png' first")
+        return
+    
+    # Load source frames
+    print("Loading source frames...")
+    source_frames = {}
+    for name, filename in FRAME_MAP.items():
+        path = os.path.join(WORK, filename)
+        if os.path.exists(path):
+            source_frames[name] = Image.open(path)
+        else:
+            print(f"Warning: {path} not found")
+    
+    # Key out magenta and align
+    print("Keying and aligning frames...")
+    aligned = align_frames(source_frames)
+    
+    # Downscale to pixel art
+    print("Downscaling to pixel art...")
+    final_frames = {}
+    for name, img in aligned.items():
+        final_frames[name] = downscale_pixelart(img, TARGET_W, TARGET_H)
+    
+    # Save frames
+    for name, img in final_frames.items():
+        path = os.path.join(OUT, f"{name}.png")
+        img.save(path)
+        print(f"  {name}.png")
+    
+    # Create contact sheet for preview
     order = ("walk1", "walk2", "walk3", "walk4", "turn", "front", "raise", "phone")
-    w, h = frames["front"].size
-    sheet = Image.new("RGBA", (w * len(order) * 6, h * 6), (162, 200, 191, 255))
+    w, h = TARGET_W, TARGET_H
+    scale = 6
+    sheet = Image.new("RGBA", (w * len(order) * scale, h * scale), (162, 200, 191, 255))
     for i, name in enumerate(order):
-        sheet.alpha_composite(frames[name].resize((w * 6, h * 6), Image.NEAREST), (i * w * 6, 0))
-    sheet.save("/tmp/walker-sheet-10.png")
-    print("wrote %d frames (%dx%d) to %s" % (len(frames), w, h, os.path.normpath(OUT)))
+        if name in final_frames:
+            scaled = final_frames[name].resize((w * scale, h * scale), Image.NEAREST)
+            sheet.alpha_composite(scaled, (i * w * scale, 0))
+    sheet.save("/tmp/walker-sheet.png")
+    
+    print(f"\nWrote {len(final_frames)} frames ({TARGET_W}x{TARGET_H}) to {os.path.normpath(OUT)}")
+    print("Contact sheet saved to /tmp/walker-sheet.png")
 
 
 if __name__ == "__main__":
