@@ -1,0 +1,311 @@
+---
+/**
+ * Hero easter egg: a pixel fighter walks in from the right, stops, turns to face
+ * you, looks at the camera, lifts his phone, then pushes it at the lens. Only
+ * plays at the top of the page: scrolling away hides him, scrolling back replays.
+ * Decorative only — hidden from assistive tech and mobile.
+ *
+ * Frames are built by art/build-walker.py from art/base-sprite.png (35x47) and
+ * shown at 3x from lg up and 2x below it, so he always clears the hero card.
+ * The walk/beat timing lives in the script below.
+ */
+const FRAMES = ["walk1", "walk2", "walk3", "walk4", "turn", "front", "raise", "phone"] as const;
+---
+
+<div
+  data-walker
+  aria-hidden="true"
+  class="walker pointer-events-none absolute bottom-[8%] right-0 z-10 hidden md:block"
+>
+  <div class="walker-body">
+    {
+      FRAMES.map((name) => (
+        <img
+          data-frame={name}
+          src={`/images/walker/${name}.png`}
+          width="105"
+          height="141"
+          alt=""
+          decoding="async"
+          class="walker-frame"
+        />
+      ))
+    }
+  </div>
+  <div data-walker-bubble class="walker-bubble px-frame">new project?</div>
+</div>
+
+<style>
+  .walker {
+    will-change: transform;
+    filter: drop-shadow(0 4px 0 rgb(0 0 0 / 0.25));
+    transition: opacity 0.2s ease;
+  }
+
+  .walker[data-hidden] {
+    opacity: 0;
+  }
+
+  .walker-body {
+    line-height: 0;
+  }
+
+  .walker-frame {
+    display: none;
+    width: 70px;
+    height: 94px;
+    image-rendering: pixelated;
+  }
+
+  @media (min-width: 1024px) {
+    .walker-frame {
+      width: 105px;
+      height: 141px;
+    }
+  }
+
+  .walker-frame[data-active] {
+    display: block;
+  }
+
+  .walker-bubble {
+    --px: 2px;
+    position: absolute;
+    bottom: calc(100% - 2px);
+    left: -28px;
+    padding: 4px 7px 5px;
+    background: var(--color-white, #fff);
+    color: var(--color-ink-950, #0b0b0b);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  .walker[data-state="show"] .walker-bubble {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.15s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .walker,
+    .walker-bubble {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const WALK_SPEED = 270; // px/s
+  const SLOW_SPEED = 95; // px/s at the stop point
+  const SLOW_ZONE = 140; // px over which he eases down
+  const BASE_INTERVAL = 85; // ms per walk frame
+  const SLOW_INTERVAL = 130;
+  const START_DELAY = 1000;
+  const REPLAY_DELAY = 500;
+  const SCROLL_HIDE = 24; // px scrolled before he disappears
+
+  // After he stops: half-turn, stare at you, lift the phone, then the zoom (phone frame).
+  const BEATS = [
+    { frame: "turn", ms: 280 },
+    { frame: "front", ms: 800 },
+    { frame: "raise", ms: 380 },
+  ] as const;
+
+  const root = document.querySelector<HTMLElement>("[data-walker]");
+  const hero = document.querySelector<HTMLElement>("[data-hero]");
+
+  if (root && hero) {
+    const frames = Array.from(root.querySelectorAll<HTMLElement>("[data-frame]"));
+    const card = hero.querySelector<HTMLElement>(".glass-card");
+    const cycle = ["walk1", "walk2", "walk3", "walk4"];
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // `state`: "idle" | "walk" | "turn" (the beats) | "show". `x` is his right edge.
+    let state: "idle" | "walk" | "turn" | "show" = "idle";
+    let hidden = false;
+    let x = 0;
+    let heroWidth = 0;
+    let xStop = 0;
+    let frameIndex = 0;
+    let frameClock = 0;
+    let last = 0;
+    let beat = 0;
+    let beatEnd = 0;
+    let raf = 0;
+    let startTimer = 0;
+
+    const setFrame = (name: string) => {
+      for (const frame of frames) {
+        if (frame.dataset.frame === name) frame.setAttribute("data-active", "");
+        else frame.removeAttribute("data-active");
+      }
+    };
+
+    const place = () => {
+      root.style.transform = `translateX(${Math.round(x - heroWidth)}px)`;
+    };
+
+    // Recompute the hero width and a stop point clear of the glass card.
+    const measure = () => {
+      const heroRect = hero.getBoundingClientRect();
+      heroWidth = heroRect.width;
+      const cardRight = card ? card.getBoundingClientRect().right - heroRect.left : 0;
+      const width = root.getBoundingClientRect().width || 105;
+      xStop = Math.min(heroWidth - 12, Math.max(heroWidth * 0.68, cardRight + 24 + width));
+    };
+
+    const stop = () => {
+      window.clearTimeout(startTimer);
+      cancelAnimationFrame(raf);
+    };
+
+    // Off-screen right, walking pose, no bubble.
+    const reset = () => {
+      stop();
+      state = "idle";
+      delete root.dataset.state;
+      measure();
+      x = heroWidth + 40;
+      frameIndex = 0;
+      frameClock = 0;
+      place();
+      setFrame(cycle[0]);
+    };
+
+    const showFinal = () => {
+      stop();
+      measure();
+      x = xStop;
+      place();
+      setFrame("phone");
+      root.dataset.state = "show";
+      state = "show";
+    };
+
+    const advanceFrame = (dt: number, interval: number) => {
+      frameClock += dt;
+      if (frameClock < interval) return;
+      frameClock -= interval;
+      frameIndex = (frameIndex + 1) % cycle.length;
+      setFrame(cycle[frameIndex]);
+    };
+
+    const nextBeat = (now: number) => {
+      beat += 1;
+      if (beat >= BEATS.length) {
+        state = "show";
+        setFrame("phone");
+        root.dataset.state = "show";
+        return;
+      }
+      setFrame(BEATS[beat].frame);
+      beatEnd = now + BEATS[beat].ms;
+    };
+
+    const tick = (now: number) => {
+      if (state !== "walk" && state !== "turn") return;
+      // Clamped so a backgrounded tab does not teleport him on return.
+      const dt = Math.min(50, now - last);
+      last = now;
+
+      if (state === "walk") {
+        const remaining = x - xStop;
+        const progress = remaining >= SLOW_ZONE ? 0 : 1 - Math.max(remaining, 0) / SLOW_ZONE;
+        x -= ((WALK_SPEED + (SLOW_SPEED - WALK_SPEED) * progress) * dt) / 1000;
+
+        if (x <= xStop) {
+          x = xStop;
+          state = "turn";
+          beat = 0;
+          setFrame(BEATS[0].frame);
+          beatEnd = now + BEATS[0].ms;
+        } else {
+          advanceFrame(dt, BASE_INTERVAL + (SLOW_INTERVAL - BASE_INTERVAL) * progress);
+        }
+        place();
+      } else if (now >= beatEnd) {
+        nextBeat(now);
+      }
+
+      if (state === "walk" || state === "turn") raf = requestAnimationFrame(tick);
+    };
+
+    const startWalk = () => {
+      measure();
+      x = heroWidth + 40;
+      place();
+      state = "walk";
+      last = performance.now();
+      raf = requestAnimationFrame(tick);
+    };
+
+    const play = (delay: number) => {
+      if (reduced) {
+        showFinal();
+      } else {
+        startTimer = window.setTimeout(startWalk, delay);
+      }
+    };
+
+    // Only plays at the top of the page: scroll away and he vanishes, scroll back and he replays.
+    const onScroll = () => {
+      const away = window.scrollY > SCROLL_HIDE;
+      if (away && !hidden) {
+        hidden = true;
+        root.setAttribute("data-hidden", "");
+        stop();
+        state = "idle";
+      } else if (!away && hidden) {
+        hidden = false;
+        reset();
+        root.removeAttribute("data-hidden");
+        play(REPLAY_DELAY);
+      }
+    };
+
+    reset();
+    if (window.scrollY > SCROLL_HIDE) {
+      hidden = true;
+      root.setAttribute("data-hidden", "");
+    } else {
+      play(START_DELAY);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", () => {
+      measure();
+      if (state === "show") {
+        x = xStop;
+        place();
+      } else if (state === "idle") {
+        x = heroWidth + 40;
+        place();
+      }
+    });
+
+    // Test hooks.
+    Object.defineProperty(window, "__walker", {
+      value: {
+        get state() {
+          return state;
+        },
+        get hidden() {
+          return hidden;
+        },
+        get x() {
+          return x;
+        },
+      },
+      configurable: true,
+    });
+  }
+</script>
